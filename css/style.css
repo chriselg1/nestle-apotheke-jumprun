@@ -68,37 +68,109 @@ body {
   box-shadow: 0 1px 0 rgba(0, 84, 122, .18);
 }
 
-/* --- Touch-Steuerung: nur auf kleinen / Touch-Geräten --- */
+/* --- Touch-Steuerung: fest am Bildschirmrand, groß genug für Daumen --- */
+
 #touch {
   display: none;
-  position: absolute;
-  inset: auto 0 0 0;
-  padding: 12px 14px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 max(14px, env(safe-area-inset-left)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-right));
   justify-content: space-between;
+  align-items: flex-end;
   pointer-events: none;
+  z-index: 30;
+}
+
+#touch .cluster {
+  display: flex;
+  gap: 14px;
 }
 
 #touch .pad {
   pointer-events: auto;
-  width: 74px;
-  height: 74px;
-  margin-right: 10px;
+  width: clamp(72px, 15vmax, 118px);
+  height: clamp(72px, 15vmax, 118px);
   border: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, .78);
+  background: rgba(255, 255, 255, .55);
   color: var(--brand-blue-dark);
-  font-size: 26px;
+  font-size: clamp(26px, 5vmax, 40px);
   font-weight: 900;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 4px 14px rgba(0, 60, 90, .3);
+  box-shadow: 0 4px 14px rgba(0, 60, 90, .28), inset 0 0 0 3px rgba(0, 159, 227, .35);
   user-select: none;
   -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
 }
 
+#touch .pad.active,
 #touch .pad:active { background: var(--brand-lime); color: #fff; }
-#touch .jump { margin: 0; margin-left: auto; background: rgba(0, 159, 227, .85); color: #fff; }
+
+#touch .jump {
+  background: rgba(0, 159, 227, .62);
+  color: #fff;
+  width: clamp(86px, 18vmax, 132px);
+  height: clamp(86px, 18vmax, 132px);
+}
+
+#touch .jump.active,
+#touch .jump:active { background: var(--brand-lime); }
+
+/* --- Hochformat-Hinweis --- */
+
+#rotate {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 88, 127, .92);
+}
+
+#rotate .card {
+  max-width: 320px;
+  padding: 28px 26px;
+  border-radius: 20px;
+  background: #fff;
+  text-align: center;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+#rotate .icon { font-size: 44px; margin-bottom: 10px; }
+#rotate strong { color: var(--brand-blue-dark); }
+
+/* --- Mobil (Touch-Geräte): Vollbild, keine Zierränder --- */
 
 @media (pointer: coarse) {
+  html, body {
+    touch-action: none;
+    overscroll-behavior: none;
+  }
+
+  body {
+    padding: 0;
+    gap: 0;
+    min-height: 100dvh;
+    justify-content: center;
+  }
+
+  /* Frame so groß wie möglich, aber komplett sichtbar (16:9 in dvh) */
+  #frame {
+    width: min(100vw, calc(100dvh * (16 / 9)));
+    border-radius: 0;
+    box-shadow: none;
+  }
+
   #touch { display: flex; }
   #hint { display: none; }
+}
+
+@media (pointer: coarse) and (orientation: portrait) {
+  #rotate { display: flex; }
+  #touch { display: none; }
 }

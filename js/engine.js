@@ -30,19 +30,36 @@ const Input = (() => {
   window.addEventListener('keydown', (e) => onKey(e, true));
   window.addEventListener('keyup', (e) => onKey(e, false));
 
-  // Touch-Pads
+  // Touch-Pads: Pointer-Capture, damit ein leicht verrutschter Finger
+  // den Button nicht verliert; Multi-Touch (laufen + springen) inklusive.
   document.querySelectorAll('#touch .pad').forEach((btn) => {
     const key = btn.dataset.key;
-    const set = (down) => (e) => {
-      e.preventDefault();
+    const press = (down) => {
       if (down && key === 'jump' && !state.jump) { jumpPressed = true; confirmPressed = true; }
       state[key] = down;
+      btn.classList.toggle('active', down);
     };
-    btn.addEventListener('pointerdown', set(true));
-    btn.addEventListener('pointerup', set(false));
-    btn.addEventListener('pointercancel', set(false));
-    btn.addEventListener('pointerleave', set(false));
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      try { btn.setPointerCapture(e.pointerId); } catch (_) { /* Capture optional */ }
+      press(true);
+    });
+    const release = (e) => { e.preventDefault(); press(false); };
+    btn.addEventListener('pointerup', release);
+    btn.addEventListener('pointercancel', release);
+    btn.addEventListener('lostpointercapture', () => press(false));
+    // Kontextmenü / Doppeltipp-Zoom unterbinden
+    btn.addEventListener('contextmenu', (e) => e.preventDefault());
   });
+
+  // Tap aufs Spielfeld = "Weiter" in Menüs (im Spiel ohne Wirkung)
+  const stage = document.getElementById('stage');
+  if (stage) {
+    stage.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      confirmPressed = true;
+    });
+  }
 
   return {
     state,

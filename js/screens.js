@@ -31,10 +31,13 @@ function drawWordmark(cx, cy, scale) {
   ctx.restore();
 }
 
+const IS_TOUCH = window.matchMedia('(pointer: coarse)').matches;
+
 function pressEnter(y, t, label) {
-  if (Math.floor(t * 1.6) % 2 === 0) {
-    text(label || 'Enter drücken zum Starten', CFG.W / 2, y, 16, COLORS.blueDeep, 'center', 800);
-  }
+  if (Math.floor(t * 1.6) % 2 !== 0) return;
+  let msg = label || 'Enter drücken zum Starten';
+  if (IS_TOUCH) msg = msg.replace('Enter drücken', 'Tippen').replace('Enter —', 'Tippen —');
+  text(msg, CFG.W / 2, y, 16, COLORS.blueDeep, 'center', 800);
 }
 
 const Screens = {
