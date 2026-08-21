@@ -8,7 +8,9 @@ const STATE = Object.freeze({
   PLAY: 'play',
   CLEARED: 'cleared',
   GAMEOVER: 'gameover',
-  FINALE: 'finale'
+  FINALE: 'finale',
+  ENTRY: 'entry',
+  SCORES: 'scores'
 });
 
 // Direktstart eines Levels per URL, z. B. ?level=4 (praktisch zum Testen)
@@ -24,7 +26,8 @@ const game = {
   score: 0,
   lives: CFG.START_LIVES,
   lastTimeBonus: 0,
-  toast: null
+  toast: null,
+  afterScores: 'title'   // wohin nach der Bestenliste: 'title' | 'retry'
 };
 
 function showToast(msg) {
@@ -169,16 +172,54 @@ function handleConfirm() {
       }
       break;
     case STATE.GAMEOVER:
-      resetRun();
-      game.state = STATE.INTRO;
+      enterScores('retry');
       break;
     case STATE.FINALE:
-      game.state = STATE.TITLE;
+      enterScores('title');
+      break;
+    case STATE.SCORES:
+      if (game.afterScores === 'retry') {
+        resetRun();
+        game.state = STATE.INTRO;
+      } else {
+        game.state = STATE.TITLE;
+      }
       break;
     default:
       break;
   }
 }
+
+/* ---------- Bestenliste ---------- */
+
+function enterScores(after) {
+  game.afterScores = after;
+  if (hsQualifies(game.score)) {
+    game.state = STATE.ENTRY;
+    hsShowEntry(game.score);
+  } else {
+    game.state = STATE.SCORES;
+  }
+}
+
+function submitEntry(save) {
+  if (game.state !== STATE.ENTRY) return;
+  if (save) hsAdd(hsInput.value, game.score, game.levelIndex + 1);
+  hsHideEntry();
+  game.state = STATE.SCORES;
+}
+
+document.getElementById('hs-save').addEventListener('click', () => submitEntry(true));
+document.getElementById('hs-skip').addEventListener('click', () => submitEntry(false));
+hsInput.addEventListener('keydown', (e) => {
+  e.stopPropagation();
+  if (e.key === 'Enter') submitEntry(true);
+});
+
+const hsBtn = document.getElementById('hs-btn');
+hsBtn.addEventListener('click', () => {
+  if (game.state === STATE.TITLE) { game.afterScores = 'title'; game.state = STATE.SCORES; }
+});
 
 /* ---------- Loop ---------- */
 
@@ -195,9 +236,17 @@ function frame(now) {
     startLevel(game.levelIndex);
   }
 
+  if (Input.consumeScores() && game.state === STATE.TITLE) {
+    game.afterScores = 'title';
+    game.state = STATE.SCORES;
+  }
+  hsBtn.classList.toggle('show', game.state === STATE.TITLE);
+
   if (game.state === STATE.PLAY) {
     Input.consumeConfirm();                 // Leertaste im Spiel nicht als "Weiter" werten
     updatePlay(dt, elapsed);
+  } else if (game.state === STATE.ENTRY) {
+    Input.consumeConfirm();                 // Eingabe läuft über das Overlay
   } else if (Input.consumeConfirm()) {
     handleConfirm();
   }
@@ -210,6 +259,8 @@ function frame(now) {
     case STATE.CLEARED: renderPlay(elapsed); Screens.cleared(game, elapsed); break;
     case STATE.GAMEOVER: Screens.gameover(game, elapsed); break;
     case STATE.FINALE: Screens.finale(game, elapsed); break;
+    case STATE.ENTRY: Screens.scores(game, elapsed, true); break;
+    case STATE.SCORES: Screens.scores(game, elapsed, false); break;
     default: break;
   }
 

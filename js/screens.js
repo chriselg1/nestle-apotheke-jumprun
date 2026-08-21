@@ -41,6 +41,33 @@ function pressEnter(y, t, label) {
 }
 
 const Screens = {
+  scores(game, t, entryOpen) {
+    SCENES.lake(t * 20, t);
+    dimBackdrop(0.35);
+    panel(CFG.W / 2 - 280, 60, 560, 420);
+    text('🏆 Bestenliste', CFG.W / 2, 108, 26, COLORS.blue, 'center', 900);
+    text('Top 10 auf diesem Gerät', CFG.W / 2, 132, 12, COLORS.inkSoft, 'center', 600);
+    const list = hsLoad();
+    if (list.length === 0) {
+      text('Noch keine Einträge — sei die Nummer 1!', CFG.W / 2, 260, 16, COLORS.inkSoft, 'center', 700);
+    } else {
+      list.forEach((e, i) => {
+        const y = 168 + i * 29;
+        if (i % 2 === 0) {
+          ctx.fillStyle = 'rgba(0,159,227,.06)';
+          rr(CFG.W / 2 - 256, y - 18, 512, 26, 8); ctx.fill();
+        }
+        const medal = ['🥇', '🥈', '🥉'][i] || `${i + 1}.`;
+        text(medal, CFG.W / 2 - 238, y, 14, COLORS.blueDeep, 'left', 800);
+        text(e.name, CFG.W / 2 - 190, y, 14, COLORS.ink, 'left', 800);
+        text(`Level ${e.level || '?'}`, CFG.W / 2 + 60, y, 12, COLORS.inkSoft, 'center', 600);
+        text(e.date || '', CFG.W / 2 + 140, y, 11, COLORS.inkSoft, 'center', 600);
+        text(String(e.score), CFG.W / 2 + 244, y, 14, COLORS.blueDark, 'right', 900);
+      });
+    }
+    if (!entryOpen) pressEnter(462, t, 'Enter — weiter');
+  },
+
   title(game, t) {
     SCENES.lake(t * 30, t);
     dimBackdrop(0.12);
@@ -49,7 +76,9 @@ const Screens = {
     text('Der Botendienst-Sprint', CFG.W / 2, 252, 26, COLORS.limeDark, 'center', 900);
     text('Sammle die Bestellungen ein und bring sie durch alle', CFG.W / 2, 292, 15, COLORS.inkSoft, 'center', 600);
     text('4 Filialen in Friedrichshafen — Keimen weichst du besser aus!', CFG.W / 2, 314, 15, COLORS.inkSoft, 'center', 600);
-    text('Springe auf Keime, um sie zu erledigen. Pillen geben Extrapunkte.', CFG.W / 2, 344, 13, COLORS.inkSoft, 'center', 600);
+    text(IS_TOUCH
+      ? 'Springe auf Keime, um sie zu erledigen. Pillen geben Extrapunkte.'
+      : 'Keime per Sprung erledigen · Pillen sammeln · H = Bestenliste', CFG.W / 2, 344, 13, COLORS.inkSoft, 'center', 600);
     if (START_LEVEL > 0) {
       ctx.fillStyle = 'rgba(197,207,35,.25)';
       rr(CFG.W / 2 - 150, 362, 300, 26, 13); ctx.fill();

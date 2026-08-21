@@ -9,6 +9,7 @@ const Input = (() => {
   let jumpPressed = false;   // Flanke: wurde Sprung in diesem Frame neu gedrückt?
   let confirmPressed = false;
   let restartPressed = false;
+  let scoresPressed = false;
 
   const KEYMAP = {
     ArrowLeft: 'left', KeyA: 'left',
@@ -17,6 +18,9 @@ const Input = (() => {
   };
 
   function onKey(e, isDown) {
+    // Tippen im Namensfeld darf das Spiel nicht steuern
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+    if (isDown && e.code === 'KeyH') scoresPressed = true;
     const action = KEYMAP[e.code];
     if (action) {
       if (isDown && action === 'jump' && !state.jump) jumpPressed = true;
@@ -65,7 +69,8 @@ const Input = (() => {
     state,
     consumeJump() { const v = jumpPressed; jumpPressed = false; return v; },
     consumeConfirm() { const v = confirmPressed; confirmPressed = false; return v; },
-    consumeRestart() { const v = restartPressed; restartPressed = false; return v; }
+    consumeRestart() { const v = restartPressed; restartPressed = false; return v; },
+    consumeScores() { const v = scoresPressed; scoresPressed = false; return v; }
   };
 })();
 
