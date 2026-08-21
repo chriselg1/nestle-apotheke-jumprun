@@ -16,6 +16,7 @@ class Player {
     this.jumpBuffer = 0;
     this.invuln = 0;
     this.runPhase = 0;
+    this.carrier = null;   // Plattform, auf der wir gerade mitfahren
     this.dead = false;
   }
 
@@ -41,15 +42,39 @@ class Player {
       this.vy = -CFG.JUMP_VELOCITY;
       this.coyote = 0;
       this.jumpBuffer = 0;
+      this.carrier = null;   // beim Absprung von der Plattform lösen
     }
     // Kurzer Sprung beim Loslassen
     if (!inp.jump && this.vy < 0) this.vy *= 1 - (1 - CFG.JUMP_CUT) * 12 * dt;
 
     this.vy = Math.min(this.vy + CFG.GRAVITY * dt, CFG.MAX_FALL);
 
+    // Erst mit der Trägerplattform mitfahren, dann kollidieren —
+    // so reißt eine abwärts fahrende Plattform nicht ständig ab.
+    if (this.carrier) {
+      this.x += this.carrier.dx || 0;
+      this.y += this.carrier.dy || 0;
+    }
+
     const flags = moveAndCollide(this, solids, dt);
-    this.onGround = flags.onGround;
-    if (flags.carrier) { this.x += flags.carrier.dx; this.y += flags.carrier.dy; }
+    let onGround = flags.onGround;
+    let carrier = flags.carrier;
+
+    // Kleben: knapp über der davonfahrenden Plattform? Wieder aufsetzen.
+    if (!onGround && this.carrier && this.vy >= 0) {
+      const c = this.carrier;
+      const overlapX = this.x + this.w > c.x && this.x < c.x + c.w;
+      const gap = c.y - (this.y + this.h);
+      if (overlapX && gap >= -2 && gap <= 12) {
+        this.y = c.y - this.h;
+        this.vy = 0;
+        onGround = true;
+        carrier = c;
+      }
+    }
+
+    this.onGround = onGround;
+    this.carrier = carrier;
 
     if (this.invuln > 0) this.invuln -= dt;
     this.runPhase += Math.abs(this.vx) * dt * 0.05;
