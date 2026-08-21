@@ -50,6 +50,11 @@ const Screens = {
     text('Sammle die Bestellungen ein und bring sie durch alle', CFG.W / 2, 292, 15, COLORS.inkSoft, 'center', 600);
     text('4 Filialen in Friedrichshafen — Keimen weichst du besser aus!', CFG.W / 2, 314, 15, COLORS.inkSoft, 'center', 600);
     text('Springe auf Keime, um sie zu erledigen. Pillen geben Extrapunkte.', CFG.W / 2, 344, 13, COLORS.inkSoft, 'center', 600);
+    if (START_LEVEL > 0) {
+      ctx.fillStyle = 'rgba(197,207,35,.25)';
+      rr(CFG.W / 2 - 150, 362, 300, 26, 13); ctx.fill();
+      text(`Testmodus: Start in Level ${START_LEVEL + 1} — ${BRANCHES[START_LEVEL].short}`, CFG.W / 2, 379, 12, COLORS.blueDeep, 'center', 800);
+    }
     pressEnter(408, t);
   },
 

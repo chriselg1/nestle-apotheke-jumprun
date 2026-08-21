@@ -11,6 +11,10 @@ const STATE = Object.freeze({
   FINALE: 'finale'
 });
 
+// Direktstart eines Levels per URL, z. B. ?level=4 (praktisch zum Testen)
+const LEVEL_PARAM = parseInt(new URLSearchParams(location.search).get('level'), 10);
+const START_LEVEL = LEVEL_PARAM >= 1 && LEVEL_PARAM <= LEVELS.length ? LEVEL_PARAM - 1 : 0;
+
 const game = {
   state: STATE.TITLE,
   levelIndex: 0,
@@ -39,7 +43,7 @@ function startLevel(index) {
 function resetRun() {
   game.score = 0;
   game.lives = CFG.START_LIVES;
-  game.levelIndex = 0;
+  game.levelIndex = START_LEVEL;
 }
 
 function hurtPlayer() {
