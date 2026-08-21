@@ -21,6 +21,14 @@ class Player {
   }
 
   update(dt, solids) {
+    // Zuerst mit der Trägerplattform mitfahren — noch vor Input und
+    // Sprung. So startet ein Absprung exakt von der Mitfahrposition
+    // statt aus einer um einen Frame versetzten (Kollisions-Snap).
+    if (this.carrier) {
+      this.x += this.carrier.dx || 0;
+      this.y += this.carrier.dy || 0;
+    }
+
     const inp = Input.state;
 
     // Horizontal: Beschleunigen / Bremsen
@@ -48,13 +56,6 @@ class Player {
     if (!inp.jump && this.vy < 0) this.vy *= 1 - (1 - CFG.JUMP_CUT) * 12 * dt;
 
     this.vy = Math.min(this.vy + CFG.GRAVITY * dt, CFG.MAX_FALL);
-
-    // Erst mit der Trägerplattform mitfahren, dann kollidieren —
-    // so reißt eine abwärts fahrende Plattform nicht ständig ab.
-    if (this.carrier) {
-      this.x += this.carrier.dx || 0;
-      this.y += this.carrier.dy || 0;
-    }
 
     const flags = moveAndCollide(this, solids, dt);
     let onGround = flags.onGround;
