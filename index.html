@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nestle-Apotheke — Der Botendienst-Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="frame">
+    <canvas id="stage" width="960" height="540"></canvas>
+
+    <div id="touch" aria-hidden="true">
+      <button class="pad" data-key="left">◀</button>
+      <button class="pad" data-key="right">▶</button>
+      <button class="pad jump" data-key="jump">▲</button>
+    </div>
+  </div>
+
+  <p id="hint">
+    <strong>◀ ▶</strong> oder <strong>A / D</strong> laufen &nbsp;·&nbsp;
+    <strong>Leertaste</strong> springen &nbsp;·&nbsp;
+    <strong>Enter</strong> weiter &nbsp;·&nbsp;
+    <strong>R</strong> Level neu
+  </p>
+
+  <script src="js/config.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/entities.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/screens.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

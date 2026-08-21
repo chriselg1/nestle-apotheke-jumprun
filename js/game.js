@@ -1,0 +1,221 @@
+/* game.js — Spielzustand, Game-Loop und Regeln. */
+
+'use strict';
+
+const STATE = Object.freeze({
+  TITLE: 'title',
+  INTRO: 'intro',
+  PLAY: 'play',
+  CLEARED: 'cleared',
+  GAMEOVER: 'gameover',
+  FINALE: 'finale'
+});
+
+const game = {
+  state: STATE.TITLE,
+  levelIndex: 0,
+  level: null,
+  player: null,
+  camera: null,
+  score: 0,
+  lives: CFG.START_LIVES,
+  lastTimeBonus: 0,
+  toast: null
+};
+
+function showToast(msg) {
+  game.toast = { msg, t: 1.6 };
+}
+
+function startLevel(index) {
+  game.levelIndex = index;
+  game.level = buildLevel(LEVELS[index]);
+  game.player = new Player(60, CFG.GROUND_Y);
+  game.camera = new Camera(game.level.def.width);
+  game.toast = null;
+  game.state = STATE.PLAY;
+}
+
+function resetRun() {
+  game.score = 0;
+  game.lives = CFG.START_LIVES;
+  game.levelIndex = 0;
+}
+
+function hurtPlayer() {
+  const p = game.player;
+  if (p.invuln > 0) return;
+  game.lives -= 1;
+  if (game.lives <= 0) {
+    game.state = STATE.GAMEOVER;
+    return;
+  }
+  p.invuln = CFG.INVULN_TIME;
+  p.vy = -CFG.JUMP_VELOCITY * 0.55;
+  p.vx = -p.facing * 180;
+  showToast('Autsch! Ein Keim hat dich erwischt.');
+}
+
+function respawnFromFall() {
+  game.lives -= 1;
+  if (game.lives <= 0) {
+    game.state = STATE.GAMEOVER;
+    return;
+  }
+  const p = game.player;
+  // zurück auf das letzte Bodensegment links der Absturzstelle
+  let sx = 60;
+  for (const s of game.level.solids) {
+    if (s.kind === 'ground' && s.x <= p.x && s.x + 40 > sx) sx = s.x + 40;
+  }
+  p.x = sx;
+  p.y = CFG.GROUND_Y - p.h - 4;
+  p.vx = 0;
+  p.vy = 0;
+  p.invuln = CFG.INVULN_TIME;
+  showToast('Platsch! Fast im Bodensee gelandet …');
+}
+
+function updatePlay(dt, t) {
+  const lvl = game.level;
+  const p = game.player;
+  lvl.time += dt;
+
+  updateMovers(lvl.solids, dt);
+  p.update(dt, lvl.solids);
+  p.x = clamp(p.x, 0, lvl.def.width - p.w);
+  game.camera.follow(p);
+
+  if (p.y > CFG.DEATH_Y) {
+    respawnFromFall();
+    return;
+  }
+
+  for (const g of lvl.germs) {
+    g.update(dt);
+    if (!g.alive || p.invuln > 0) continue;
+    if (!aabb(p, g)) continue;
+    const falling = p.vy > 120;
+    const above = p.y + p.h - g.y < 18 + p.vy * dt;
+    if (falling && above) {
+      g.alive = false;
+      p.vy = -CFG.STOMP_BOUNCE;
+      game.score += POINTS.GERM;
+      showToast(`Keim erledigt! +${POINTS.GERM}`);
+    } else {
+      hurtPlayer();
+      if (game.state !== STATE.PLAY) return;
+    }
+  }
+
+  for (const pk of lvl.pickups) {
+    if (pk.taken || !aabb(p, pk)) continue;
+    pk.taken = true;
+    if (pk.type === 'pill') {
+      game.score += POINTS.PILL;
+    } else {
+      lvl.ordersGot += 1;
+      game.score += POINTS.ORDER;
+      showToast(`${pk.label} eingesammelt! +${POINTS.ORDER}`);
+    }
+  }
+
+  // Ziel erreicht?
+  if (aabb(p, lvl.goal)) {
+    game.lastTimeBonus = Math.max(0, Math.round((lvl.def.par - lvl.time) * POINTS.TIME_BONUS_PER_S));
+    game.score += POINTS.LEVEL_CLEAR + game.lastTimeBonus
+      + (lvl.ordersGot === lvl.ordersTotal ? POINTS.ORDER : 0);
+    game.state = STATE.CLEARED;
+  }
+
+  if (game.toast) game.toast.t -= dt;
+  void t;
+}
+
+function renderPlay(t) {
+  const lvl = game.level;
+  const camX = game.camera.x;
+  SCENES[BRANCHES[lvl.def.branch].scene](camX, t);
+  for (const s of lvl.solids) drawSolid(s, camX);
+  drawGoal(lvl.goal, camX, t, BRANCHES[lvl.def.branch].short);
+  for (const pk of lvl.pickups) drawPickup(pk, camX, t);
+  for (const g of lvl.germs) drawGerm(g, camX);
+  drawPlayer(game.player, camX, t);
+  drawHUD(game);
+  drawToast(game.toast);
+}
+
+/* ---------- Zustandsübergänge ---------- */
+
+function handleConfirm() {
+  switch (game.state) {
+    case STATE.TITLE:
+      resetRun();
+      game.state = STATE.INTRO;
+      break;
+    case STATE.INTRO:
+      startLevel(game.levelIndex);
+      break;
+    case STATE.CLEARED:
+      if (game.levelIndex >= LEVELS.length - 1) {
+        game.state = STATE.FINALE;
+      } else {
+        game.levelIndex += 1;
+        game.state = STATE.INTRO;
+      }
+      break;
+    case STATE.GAMEOVER:
+      resetRun();
+      game.state = STATE.INTRO;
+      break;
+    case STATE.FINALE:
+      game.state = STATE.TITLE;
+      break;
+    default:
+      break;
+  }
+}
+
+/* ---------- Loop ---------- */
+
+let lastTime = performance.now();
+let elapsed = 0;
+
+function frame(now) {
+  const dt = Math.min(0.033, (now - lastTime) / 1000);
+  lastTime = now;
+  elapsed += dt;
+
+  if (Input.consumeRestart() && game.state === STATE.PLAY) {
+    game.lives = Math.max(1, game.lives);   // Neustart des Levels kostet kein Leben
+    startLevel(game.levelIndex);
+  }
+
+  if (game.state === STATE.PLAY) {
+    Input.consumeConfirm();                 // Leertaste im Spiel nicht als "Weiter" werten
+    updatePlay(dt, elapsed);
+  } else if (Input.consumeConfirm()) {
+    handleConfirm();
+  }
+
+  ctx.clearRect(0, 0, CFG.W, CFG.H);
+  switch (game.state) {
+    case STATE.TITLE: Screens.title(game, elapsed); break;
+    case STATE.INTRO: Screens.intro(game, elapsed); break;
+    case STATE.PLAY: renderPlay(elapsed); break;
+    case STATE.CLEARED: renderPlay(elapsed); Screens.cleared(game, elapsed); break;
+    case STATE.GAMEOVER: Screens.gameover(game, elapsed); break;
+    case STATE.FINALE: Screens.finale(game, elapsed); break;
+    default: break;
+  }
+
+  scheduleNextFrame();
+}
+
+/* rAF pausiert in unsichtbaren Tabs — Timer-Fallback hält das Spiel am Laufen. */
+function scheduleNextFrame() {
+  if (document.hidden) setTimeout(() => frame(performance.now()), 33);
+  else requestAnimationFrame(frame);
+}
+
+scheduleNextFrame();

@@ -1,0 +1,104 @@
+/* Nestle-Apotheke Jump'n'Run — Layout & Chrome
+   Brand: #009fe3 (Cyan-Blau), #c5cf23 (Lime) — aus dem Filial-Logo */
+
+:root {
+  --brand-blue: #009fe3;
+  --brand-blue-dark: #0079ad;
+  --brand-lime: #c5cf23;
+  --ink: #1d2a33;
+  --paper: #f4f9fc;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 16px;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #e8f6fd 0%, #d3ecf8 45%, #bfe3f4 100%);
+  font-family: Mulish, "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  overflow: hidden;
+}
+
+#frame {
+  position: relative;
+  width: min(100%, 1040px);
+  border-radius: 20px;
+  overflow: hidden;
+  background: #9fd8f2;
+  box-shadow:
+    0 24px 60px rgba(0, 84, 122, .28),
+    0 0 0 5px #fff,
+    0 0 0 8px var(--brand-blue);
+}
+
+#stage {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: auto;
+  touch-action: none;
+}
+
+#hint {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: .01em;
+  color: #35586b;
+  text-align: center;
+}
+
+#hint strong {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--brand-blue-dark);
+  font-weight: 900;
+  box-shadow: 0 1px 0 rgba(0, 84, 122, .18);
+}
+
+/* --- Touch-Steuerung: nur auf kleinen / Touch-Geräten --- */
+#touch {
+  display: none;
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 12px 14px;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+#touch .pad {
+  pointer-events: auto;
+  width: 74px;
+  height: 74px;
+  margin-right: 10px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .78);
+  color: var(--brand-blue-dark);
+  font-size: 26px;
+  font-weight: 900;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 14px rgba(0, 60, 90, .3);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#touch .pad:active { background: var(--brand-lime); color: #fff; }
+#touch .jump { margin: 0; margin-left: auto; background: rgba(0, 159, 227, .85); color: #fff; }
+
+@media (pointer: coarse) {
+  #touch { display: flex; }
+  #hint { display: none; }
+}
