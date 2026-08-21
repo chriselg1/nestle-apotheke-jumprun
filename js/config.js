@@ -13,7 +13,7 @@ const CFG = Object.freeze({
   ACCEL: 2200,
   FRICTION: 2400,
   AIR_CONTROL: 0.55,
-  JUMP_VELOCITY: 720,
+  JUMP_VELOCITY: 760,
   JUMP_CUT: 0.42,         // Faktor beim Loslassen der Sprungtaste
   MAX_FALL: 940,
   COYOTE_TIME: 0.10,
