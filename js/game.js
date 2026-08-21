@@ -194,7 +194,8 @@ function handleConfirm() {
 
 function enterScores(after) {
   game.afterScores = after;
-  if (hsQualifies(game.score)) {
+  hsSync();
+  if (game.score > 0) {
     game.state = STATE.ENTRY;
     hsShowEntry(game.score);
   } else {
@@ -204,7 +205,10 @@ function enterScores(after) {
 
 function submitEntry(save) {
   if (game.state !== STATE.ENTRY) return;
-  if (save) hsAdd(hsInput.value, game.score, game.levelIndex + 1);
+  if (save) {
+    const entry = hsAdd(hsInput.value, game.score, game.levelIndex + 1);
+    hsSubmitRemote(entry);   // asynchron; Anzeige aktualisiert sich selbst
+  }
   hsHideEntry();
   game.state = STATE.SCORES;
 }
@@ -218,7 +222,7 @@ hsInput.addEventListener('keydown', (e) => {
 
 const hsBtn = document.getElementById('hs-btn');
 hsBtn.addEventListener('click', () => {
-  if (game.state === STATE.TITLE) { game.afterScores = 'title'; game.state = STATE.SCORES; }
+  if (game.state === STATE.TITLE) { game.afterScores = 'title'; hsSync(); game.state = STATE.SCORES; }
 });
 
 /* ---------- Loop ---------- */
@@ -238,6 +242,7 @@ function frame(now) {
 
   if (Input.consumeScores() && game.state === STATE.TITLE) {
     game.afterScores = 'title';
+    hsSync();
     game.state = STATE.SCORES;
   }
   hsBtn.classList.toggle('show', game.state === STATE.TITLE);

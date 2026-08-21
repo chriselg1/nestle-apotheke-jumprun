@@ -46,10 +46,15 @@ const Screens = {
     dimBackdrop(0.35);
     panel(CFG.W / 2 - 280, 60, 560, 420);
     text('🏆 Bestenliste', CFG.W / 2, 108, 26, COLORS.blue, 'center', 900);
-    text('Top 10 auf diesem Gerät', CFG.W / 2, 132, 12, COLORS.inkSoft, 'center', 600);
-    const list = hsLoad();
+    const online = hsRemote.online === true;
+    const subtitle = hsRemote.loading && hsRemote.online === null
+      ? 'Lade Online-Bestenliste …'
+      : online ? 'Online — geräteübergreifende Top 10'
+               : 'Offline — lokale Liste dieses Geräts';
+    text(subtitle, CFG.W / 2, 132, 12, online ? COLORS.limeDark : COLORS.inkSoft, 'center', 700);
+    const list = (online ? hsRemote.list : hsLoad()).slice(0, 10);
     if (list.length === 0) {
-      text('Noch keine Einträge — sei die Nummer 1!', CFG.W / 2, 260, 16, COLORS.inkSoft, 'center', 700);
+      text(hsRemote.loading ? '…' : 'Noch keine Einträge — sei die Nummer 1!', CFG.W / 2, 260, 16, COLORS.inkSoft, 'center', 700);
     } else {
       list.forEach((e, i) => {
         const y = 168 + i * 29;
