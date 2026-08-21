@@ -106,14 +106,19 @@ function moveAndCollide(ent, solids, dt) {
     if (!aabb(ent, s)) continue;
     if (ent.vx > 0) ent.x = s.x - ent.w;
     else if (ent.vx < 0) ent.x = s.x + s.w;
+    else if (s.dx) ent.x = s.dx > 0 ? s.x + s.w : s.x - ent.w; // Mover schiebt uns seitlich
     ent.vx = 0;
   }
 
-  // Y-Achse
+  // Y-Achse — merken, ob die Füße vorher ÜBER der Fläche waren:
+  // nur dann ist "oben landen" korrekt. Sonst hat uns eine fahrende
+  // Plattform erfasst und wir gehören unter sie (kein Hochteleportieren).
+  const prevFeet = ent.y + ent.h;
   ent.y += ent.vy * dt;
   for (const s of solids) {
     if (!aabb(ent, s)) continue;
-    if (ent.vy > 0) {
+    const wasAbove = prevFeet <= s.y + Math.max(0, s.dy || 0) + 0.5;
+    if (ent.vy > 0 && wasAbove) {
       ent.y = s.y - ent.h;
       ent.vy = 0;
       flags.onGround = true;
@@ -121,6 +126,10 @@ function moveAndCollide(ent, solids, dt) {
     } else if (ent.vy < 0) {
       ent.y = s.y + s.h;
       ent.vy = 0;
+      flags.hitHead = true;
+    } else {
+      // fallend, aber nicht von oben gekommen -> unter die Plattform drücken
+      ent.y = s.y + s.h;
       flags.hitHead = true;
     }
   }
