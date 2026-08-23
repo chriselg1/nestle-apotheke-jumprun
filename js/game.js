@@ -37,6 +37,7 @@ function showToast(msg) {
 }
 
 function startLevel(index) {
+  Input.reset();   // keine "hängenden" Tasten aus dem vorherigen Durchlauf
   game.levelIndex = index;
   game.level = buildLevel(LEVELS[index]);
   game.player = new Player(60, CFG.GROUND_Y);

@@ -19,8 +19,11 @@ const Input = (() => {
   };
 
   function onKey(e, isDown) {
-    // Tippen im Namensfeld darf das Spiel nicht steuern
-    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+    // Tippen im Namensfeld darf das Spiel nicht steuern — aber nur das
+    // DRÜCKEN ignorieren: ein verschlucktes Loslassen würde die Taste
+    // dauerhaft "gedrückt" lassen (Figur läuft von selbst los).
+    const inField = e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA');
+    if (isDown && inField) return;
     if (isDown && e.code === 'KeyH') scoresPressed = true;
     if (isDown && e.code === 'KeyP') pausePressed = true;
     const action = KEYMAP[e.code];
@@ -82,6 +85,10 @@ const Input = (() => {
     e.preventDefault();
   }, { passive: false });
 
+  // Fokusverlust (Tab-/Fensterwechsel, Overlay): keyup kommt dann nie an
+  window.addEventListener('blur', () => Input.reset());
+  document.addEventListener('visibilitychange', () => { if (document.hidden) Input.reset(); });
+
   // Tap aufs Spielfeld = "Weiter" in Menüs (im Spiel ohne Wirkung)
   const stage = document.getElementById('stage');
   if (stage) {
@@ -97,7 +104,13 @@ const Input = (() => {
     consumeConfirm() { const v = confirmPressed; confirmPressed = false; return v; },
     consumeRestart() { const v = restartPressed; restartPressed = false; return v; },
     consumeScores() { const v = scoresPressed; scoresPressed = false; return v; },
-    consumePause() { const v = pausePressed; pausePressed = false; return v; }
+    consumePause() { const v = pausePressed; pausePressed = false; return v; },
+    /** Alles loslassen — gegen "Stuck Keys" bei Fokusverlust/Levelstart. */
+    reset() {
+      state.left = state.right = state.jump = false;
+      jumpPressed = confirmPressed = restartPressed = false;
+      document.querySelectorAll('#touch .pad').forEach((b) => b.classList.remove('active'));
+    }
   };
 })();
 
