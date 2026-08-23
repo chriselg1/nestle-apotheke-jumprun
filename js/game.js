@@ -254,6 +254,8 @@ fsBtn.addEventListener('click', async () => {
 
 document.getElementById('fs-hint-ok').addEventListener('click', () => fsHint.classList.remove('show'));
 
+const shopBtn = document.getElementById('shop-btn');
+
 /* ---------- Loop ---------- */
 
 let lastTime = performance.now();
@@ -276,6 +278,7 @@ function frame(now) {
   }
   hsBtn.classList.toggle('show', game.state === STATE.TITLE);
   fsBtn.classList.toggle('show', game.state === STATE.TITLE && !IS_STANDALONE);
+  shopBtn.classList.toggle('show', game.state === STATE.GAMEOVER);
 
   if (game.state === STATE.PLAY) {
     Input.consumeConfirm();                 // Leertaste im Spiel nicht als "Weiter" werten
