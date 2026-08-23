@@ -10,6 +10,7 @@ const STATE = Object.freeze({
   GAMEOVER: 'gameover',
   FINALE: 'finale',
   OUTRO: 'outro',
+  PAUSED: 'paused',
   ENTRY: 'entry',
   SCORES: 'scores'
 });
@@ -169,6 +170,9 @@ function handleConfirm() {
     case STATE.INTRO:
       startLevel(game.levelIndex);
       break;
+    case STATE.PAUSED:
+      game.state = STATE.PLAY;
+      break;
     case STATE.CLEARED:
       if (game.levelIndex >= LEVELS.length - 1) {
         game.outroStart = performance.now();
@@ -266,6 +270,17 @@ document.getElementById('fs-hint-ok').addEventListener('click', () => fsHint.cla
 
 const shopBtn = document.getElementById('shop-btn');
 
+/* ---------- Pause ---------- */
+
+const pauseBtn = document.getElementById('pause-btn');
+
+function togglePause() {
+  if (game.state === STATE.PLAY) game.state = STATE.PAUSED;
+  else if (game.state === STATE.PAUSED) game.state = STATE.PLAY;
+}
+
+pauseBtn.addEventListener('click', togglePause);
+
 /* ---------- Loop ---------- */
 
 let lastTime = performance.now();
@@ -276,10 +291,11 @@ function frame(now) {
   lastTime = now;
   elapsed += dt;
 
-  if (Input.consumeRestart() && game.state === STATE.PLAY) {
+  if (Input.consumeRestart() && (game.state === STATE.PLAY || game.state === STATE.PAUSED)) {
     game.lives = Math.max(1, game.lives);   // Neustart des Levels kostet kein Leben
     startLevel(game.levelIndex);
   }
+  if (Input.consumePause()) togglePause();
 
   if (Input.consumeScores() && game.state === STATE.TITLE) {
     game.afterScores = 'title';
@@ -288,7 +304,9 @@ function frame(now) {
   }
   hsBtn.classList.toggle('show', game.state === STATE.TITLE);
   fsBtn.classList.toggle('show', game.state === STATE.TITLE && !IS_STANDALONE);
-  shopBtn.classList.toggle('show', game.state === STATE.GAMEOVER);
+  shopBtn.classList.toggle('show', game.state === STATE.GAMEOVER || game.state === STATE.FINALE);
+  pauseBtn.classList.toggle('show', game.state === STATE.PLAY || game.state === STATE.PAUSED);
+  pauseBtn.textContent = game.state === STATE.PAUSED ? '▶' : '⏸';
 
   if (game.state === STATE.PLAY) {
     Input.consumeConfirm();                 // Leertaste im Spiel nicht als "Weiter" werten
@@ -304,6 +322,7 @@ function frame(now) {
     case STATE.TITLE: Screens.title(game, elapsed); break;
     case STATE.INTRO: Screens.intro(game, elapsed); break;
     case STATE.PLAY: renderPlay(elapsed); break;
+    case STATE.PAUSED: renderPlay(elapsed); Screens.paused(game, elapsed); break;
     case STATE.CLEARED: renderPlay(elapsed); Screens.cleared(game, elapsed); break;
     case STATE.GAMEOVER: Screens.gameover(game, elapsed); break;
     case STATE.OUTRO: Screens.outro(game, elapsed); break;

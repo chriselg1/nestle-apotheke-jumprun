@@ -536,7 +536,7 @@ function drawHUD(game) {
 
   // Leben (Kreuze)
   for (let i = 0; i < CFG.START_LIVES; i++) {
-    const x = CFG.W - 40 - i * 30;
+    const x = CFG.W - 100 - i * 30;
     ctx.fillStyle = i < game.lives ? '#e2483c' : 'rgba(0,0,0,.12)';
     rr(x - 3, 18 - 10, 8, 22, 2); ctx.fill();
     rr(x - 10, 18 - 3, 22, 8, 2); ctx.fill();

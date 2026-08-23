@@ -10,6 +10,7 @@ const Input = (() => {
   let confirmPressed = false;
   let restartPressed = false;
   let scoresPressed = false;
+  let pausePressed = false;
 
   const KEYMAP = {
     ArrowLeft: 'left', KeyA: 'left',
@@ -21,6 +22,7 @@ const Input = (() => {
     // Tippen im Namensfeld darf das Spiel nicht steuern
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
     if (isDown && e.code === 'KeyH') scoresPressed = true;
+    if (isDown && e.code === 'KeyP') pausePressed = true;
     const action = KEYMAP[e.code];
     if (action) {
       if (isDown && action === 'jump' && !state.jump) jumpPressed = true;
@@ -94,7 +96,8 @@ const Input = (() => {
     consumeJump() { const v = jumpPressed; jumpPressed = false; return v; },
     consumeConfirm() { const v = confirmPressed; confirmPressed = false; return v; },
     consumeRestart() { const v = restartPressed; restartPressed = false; return v; },
-    consumeScores() { const v = scoresPressed; scoresPressed = false; return v; }
+    consumeScores() { const v = scoresPressed; scoresPressed = false; return v; },
+    consumePause() { const v = pausePressed; pausePressed = false; return v; }
   };
 })();
 

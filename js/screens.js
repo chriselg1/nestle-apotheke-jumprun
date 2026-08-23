@@ -73,6 +73,15 @@ const Screens = {
     if (!entryOpen) pressEnter(462, t, 'Enter — weiter');
   },
 
+  paused(game, t) {
+    dimBackdrop(0.45);
+    panel(CFG.W / 2 - 200, 190, 400, 160);
+    text('⏸ Pause', CFG.W / 2, 244, 28, COLORS.blue, 'center', 900);
+    text(IS_TOUCH ? 'Tippen oder ▶ — weiter geht’s' : 'P, Enter oder ▶ — weiter geht’s',
+      CFG.W / 2, 284, 15, COLORS.inkSoft, 'center', 700);
+    pressEnter(322, t, 'Enter — weiterspielen');
+  },
+
   title(game, t) {
     SCENES.lake(t * 30, t);
     dimBackdrop(0.12);
