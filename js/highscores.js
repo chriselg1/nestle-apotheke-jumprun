@@ -78,7 +78,7 @@ function hsClean(list) {
     .map((e) => ({
       name: String(e.name).trim().slice(0, HS_NAME_LEN) || 'Anonym',
       score: Math.round(e.score),
-      level: Math.min(4, Math.max(1, e.level | 0)),
+      level: Math.min(LEVELS.length, Math.max(1, e.level | 0)),
       date: typeof e.date === 'string' ? e.date.slice(0, 10) : ''
     }))
     .sort((a, b) => b.score - a.score)
