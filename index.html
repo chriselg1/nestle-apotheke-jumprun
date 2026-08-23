@@ -4,16 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Botendienst">
+<meta name="theme-color" content="#009fe3">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <title>Nestle-Apotheke — Der Botendienst-Sprint</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=4">
+<link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body>
   <div id="frame">
     <canvas id="stage" width="960" height="540"></canvas>
     <button id="hs-btn" title="Bestenliste anzeigen">🏆 Bestenliste</button>
+    <button id="fs-btn" title="Vollbild">⛶</button>
 
   </div>
 
@@ -39,6 +47,17 @@
     </div>
   </div>
 
+  <div id="fs-hint" role="dialog" aria-label="Vollbild-Hinweis">
+    <div class="card">
+      <div class="icon">📲</div>
+      <p><strong>Echtes Vollbild auf dem iPhone:</strong><br>
+      In Safari unten auf <strong>Teilen</strong> tippen und
+      <strong>„Zum Home-Bildschirm"</strong> wählen.<br>
+      Vom neuen Icon aus startet das Spiel randlos —<br>ganz ohne Adress- und Tableiste.</p>
+      <button id="fs-hint-ok">Alles klar</button>
+    </div>
+  </div>
+
   <div id="rotate" aria-hidden="true">
     <div class="card">
       <div class="icon">📱⟳</div>
@@ -55,11 +74,11 @@
 
   <script src="js/config.js?v=4"></script>
   <script src="js/levels.js?v=5"></script>
-  <script src="js/engine.js?v=6"></script>
+  <script src="js/engine.js?v=7"></script>
   <script src="js/entities.js?v=5"></script>
   <script src="js/highscores.js?v=2"></script>
   <script src="js/render.js?v=2"></script>
   <script src="js/screens.js?v=8"></script>
-  <script src="js/game.js?v=8"></script>
+  <script src="js/game.js?v=9"></script>
 </body>
 </html>

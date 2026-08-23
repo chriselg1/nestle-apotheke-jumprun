@@ -225,6 +225,35 @@ hsBtn.addEventListener('click', () => {
   if (game.state === STATE.TITLE) { game.afterScores = 'title'; hsSync(); game.state = STATE.SCORES; }
 });
 
+/* ---------- Vollbild ---------- */
+
+const fsBtn = document.getElementById('fs-btn');
+const fsHint = document.getElementById('fs-hint');
+const IS_STANDALONE = window.matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches
+  || window.navigator.standalone === true;
+
+function canFullscreen() {
+  const el = document.documentElement;
+  return !!(el.requestFullscreen || el.webkitRequestFullscreen);
+}
+
+fsBtn.addEventListener('click', async () => {
+  const el = document.documentElement;
+  if (document.fullscreenElement || document.webkitFullscreenElement) {
+    (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    return;
+  }
+  try {
+    if (el.requestFullscreen) await el.requestFullscreen({ navigationUI: 'hide' });
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else fsHint.classList.add('show');
+  } catch (_) {
+    fsHint.classList.add('show');   // z. B. iPhone-Safari ohne Fullscreen-API
+  }
+});
+
+document.getElementById('fs-hint-ok').addEventListener('click', () => fsHint.classList.remove('show'));
+
 /* ---------- Loop ---------- */
 
 let lastTime = performance.now();
@@ -246,6 +275,7 @@ function frame(now) {
     game.state = STATE.SCORES;
   }
   hsBtn.classList.toggle('show', game.state === STATE.TITLE);
+  fsBtn.classList.toggle('show', game.state === STATE.TITLE && !IS_STANDALONE);
 
   if (game.state === STATE.PLAY) {
     Input.consumeConfirm();                 // Leertaste im Spiel nicht als "Weiter" werten

@@ -56,6 +56,30 @@ const Input = (() => {
     btn.addEventListener('contextmenu', (e) => e.preventDefault());
   });
 
+  // --- iOS-Zoom-Schutz ---------------------------------------------
+  // Safari auf dem iPhone ignoriert user-scalable=no: zwei gleichzeitige
+  // Daumen werden als Pinch gewertet und zoomen die Seite dauerhaft.
+  // Safari-eigene Gesture-Events und Multi-Touch-Moves aktiv abfangen:
+  ['gesturestart', 'gesturechange', 'gestureend'].forEach((type) => {
+    document.addEventListener(type, (e) => e.preventDefault(), { passive: false });
+  });
+  document.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+  // Doppeltipp-Zoom: schnellen zweiten Tap schlucken — außer im
+  // Bestenlisten-Overlay, dort braucht der Browser die Click-Synthese.
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', (e) => {
+    if (e.target && e.target.closest && e.target.closest('#hs-entry')) return;
+    const now = Date.now();
+    if (now - lastTouchEnd < 350 && e.cancelable) e.preventDefault();
+    lastTouchEnd = now;
+  }, { passive: false });
+  document.addEventListener('dblclick', (e) => {
+    if (e.target && e.target.closest && e.target.closest('#hs-entry')) return;
+    e.preventDefault();
+  }, { passive: false });
+
   // Tap aufs Spielfeld = "Weiter" in Menüs (im Spiel ohne Wirkung)
   const stage = document.getElementById('stage');
   if (stage) {
