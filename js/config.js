@@ -103,6 +103,55 @@ const ORDERS = Object.freeze([
   'Vitamin-D Tropfen'
 ]);
 
+/* Die vier Auslieferungstouren (Level 5-8) — Stadtteile & Nachbarorte. */
+const TOURS = Object.freeze([
+  {
+    name: 'Liefertour Fischbach',
+    short: 'Fischbach',
+    sub: 'Auslieferung ans Seeufer — 3 Pakete',
+    scene: 'shore',
+    claim: 'Morgens am Strandbad entlang — die Kunden warten schon.',
+    fact: 'Der Botendienst liefert bis an die Haustür.'
+  },
+  {
+    name: 'Liefertour Ailingen',
+    short: 'Ailingen',
+    sub: 'Auslieferung ins Hügelland — 3 Pakete',
+    scene: 'village',
+    claim: 'Durchs Dorf, vorbei an Kirchturm und Obstgärten.',
+    fact: 'Online bestellt — noch am selben Tag geliefert.'
+  },
+  {
+    name: 'Liefertour Eriskirch',
+    short: 'Eriskirch',
+    sub: 'Auslieferung durchs Ried — 3 Pakete',
+    scene: 'ried',
+    claim: 'Zwischen Schilf und Störchen durchs Eriskircher Ried.',
+    fact: 'Kühlpflichtige Ware? Kommt sicher verpackt an.'
+  },
+  {
+    name: 'Liefertour Oberteuringen',
+    short: 'Oberteuringen',
+    sub: 'Die Königsetappe — 3 Pakete',
+    scene: 'orchard',
+    claim: 'Hoch hinaus durch die Apfelplantagen — Endspurt!',
+    fact: 'Rezept einlösen geht auch bequem per App.'
+  }
+]);
+
+/** Meta eines Levels: Filiale (Sammel-Level) oder Tour (Liefer-Level). */
+function levelMeta(def) {
+  return def.branch !== undefined ? BRANCHES[def.branch] : TOURS[def.tour];
+}
+
+/* Belohnung nach dem Durchspielen — Code & Prozent hier zentral anpassbar!
+   WICHTIG: Der Code muss im Shopsystem angelegt werden, sonst ist er wirkungslos. */
+const REWARD = Object.freeze({
+  code: 'SPRINT10',
+  percent: 10,
+  hint: 'Einlösbar im Onlineshop auf nestle-apotheke.de'
+});
+
 const POINTS = Object.freeze({
   PILL: 50,
   ORDER: 250,

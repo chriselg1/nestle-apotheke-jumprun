@@ -109,9 +109,9 @@ class Germ {
 
 class Pickup {
   constructor(x, y, type, label) {
-    this.type = type;           // 'pill' | 'order'
-    this.w = type === 'order' ? 30 : 20;
-    this.h = type === 'order' ? 26 : 20;
+    this.type = type;           // 'pill' | 'order' | 'delivery' (wartender Kunde)
+    this.w = type === 'order' ? 30 : type === 'delivery' ? 36 : 20;
+    this.h = type === 'order' ? 26 : type === 'delivery' ? 48 : 20;
     this.x = x - this.w / 2;
     this.y = y - this.h / 2;
     this.label = label || '';
@@ -126,8 +126,10 @@ function buildLevel(def) {
   const germs = def.germs.map((g) => new Germ(g.x, g.range));
   const pickups = [];
   def.pills.forEach((p) => pickups.push(new Pickup(p.x, p.y, 'pill')));
-  def.orders.forEach((o, i) =>
-    pickups.push(new Pickup(o.x, o.y, 'order', ORDERS[(def.branch * 3 + i) % ORDERS.length])));
+  const isDelivery = def.mode === 'deliver';
+  def.orders.forEach((o, i) => pickups.push(isDelivery
+    ? new Pickup(o.x, o.y, 'delivery', def.customers[i] || 'Kunde')
+    : new Pickup(o.x, o.y, 'order', ORDERS[(def.branch * 3 + i) % ORDERS.length])));
   return {
     def,
     solids,

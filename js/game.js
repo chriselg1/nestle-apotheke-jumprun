@@ -9,6 +9,7 @@ const STATE = Object.freeze({
   CLEARED: 'cleared',
   GAMEOVER: 'gameover',
   FINALE: 'finale',
+  OUTRO: 'outro',
   ENTRY: 'entry',
   SCORES: 'scores'
 });
@@ -120,6 +121,10 @@ function updatePlay(dt, t) {
     pk.taken = true;
     if (pk.type === 'pill') {
       game.score += POINTS.PILL;
+    } else if (pk.type === 'delivery') {
+      lvl.ordersGot += 1;
+      game.score += POINTS.ORDER;
+      showToast(`Paket zugestellt: ${pk.label}! +${POINTS.ORDER}`);
     } else {
       lvl.ordersGot += 1;
       game.score += POINTS.ORDER;
@@ -142,9 +147,10 @@ function updatePlay(dt, t) {
 function renderPlay(t) {
   const lvl = game.level;
   const camX = game.camera.x;
-  SCENES[BRANCHES[lvl.def.branch].scene](camX, t);
+  const meta = levelMeta(lvl.def);
+  SCENES[meta.scene](camX, t);
   for (const s of lvl.solids) drawSolid(s, camX);
-  drawGoal(lvl.goal, camX, t, BRANCHES[lvl.def.branch].short);
+  drawGoal(lvl.goal, camX, t, meta.short, lvl.def.mode);
   for (const pk of lvl.pickups) drawPickup(pk, camX, t);
   for (const g of lvl.germs) drawGerm(g, camX);
   drawPlayer(game.player, camX, t);
@@ -165,7 +171,8 @@ function handleConfirm() {
       break;
     case STATE.CLEARED:
       if (game.levelIndex >= LEVELS.length - 1) {
-        game.state = STATE.FINALE;
+        game.outroStart = performance.now();
+        game.state = STATE.OUTRO;
       } else {
         game.levelIndex += 1;
         game.state = STATE.INTRO;
@@ -173,6 +180,9 @@ function handleConfirm() {
       break;
     case STATE.GAMEOVER:
       enterScores('retry');
+      break;
+    case STATE.OUTRO:
+      if (performance.now() - game.outroStart > 2000) game.state = STATE.FINALE;
       break;
     case STATE.FINALE:
       enterScores('title');
@@ -296,6 +306,7 @@ function frame(now) {
     case STATE.PLAY: renderPlay(elapsed); break;
     case STATE.CLEARED: renderPlay(elapsed); Screens.cleared(game, elapsed); break;
     case STATE.GAMEOVER: Screens.gameover(game, elapsed); break;
+    case STATE.OUTRO: Screens.outro(game, elapsed); break;
     case STATE.FINALE: Screens.finale(game, elapsed); break;
     case STATE.ENTRY: Screens.scores(game, elapsed, true); break;
     case STATE.SCORES: Screens.scores(game, elapsed, false); break;

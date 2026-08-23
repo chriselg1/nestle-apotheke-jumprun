@@ -115,6 +115,36 @@ function drawSail(x, y, s) {
   ctx.fill();
 }
 
+function drawReeds(camX, factor, base) {
+  ctx.strokeStyle = '#7c9a4a';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 30; i++) {
+    const x = ((i * 127 - camX * factor) % (CFG.W + 60)) - 30;
+    const h = 22 + (i * 29 % 16);
+    ctx.beginPath();
+    ctx.moveTo(x, base + 10);
+    ctx.quadraticCurveTo(x + 4, base - h / 2, x + 7, base - h);
+    ctx.stroke();
+    ctx.fillStyle = '#8a6a3f';
+    rr(x + 4, base - h - 8, 5, 11, 3); ctx.fill();
+  }
+}
+
+function drawBirds(camX, t) {
+  ctx.strokeStyle = 'rgba(70,90,100,.8)';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 3; i++) {
+    const x = ((i * 400 + t * 34 - camX * 0.2) % (CFG.W + 260)) - 130;
+    const y = 70 + i * 34;
+    const f = Math.sin(t * 6 + i) * 5;
+    ctx.beginPath();
+    ctx.moveTo(x - 11, y - 4 + f); ctx.quadraticCurveTo(x, y + 3, x + 11, y - 4 + f);
+    ctx.stroke();
+  }
+}
+
 const SCENES = {
   lake(camX, t) {
     ctx.fillStyle = skyGradient('#bfe9fb', '#e8f7ff');
@@ -151,6 +181,78 @@ const SCENES = {
     drawHillsFar(camX, '#b9d98a', 60, 340);
     drawHillsFar(camX * 1.6, '#9cc86c', 42, 384);
     drawTreeline(camX, 0.55, 420, '#6fae4e');
+  },
+  shore(camX, t) {
+    ctx.fillStyle = skyGradient('#ffe0b0', '#c9ecf9');
+    ctx.fillRect(0, 0, CFG.W, CFG.H);
+    ctx.fillStyle = '#ffd27a';                                   // Morgensonne
+    ctx.beginPath(); ctx.arc(210, 120, 42, 0, Math.PI * 2); ctx.fill();
+    drawClouds(camX, t);
+    drawHillsFar(camX, '#a9cfe0', 42, 326);
+    drawWater(camX, t, 352);
+    drawSail(((520 - camX * 0.5 + t * 9) % (CFG.W + 200)) - 100, 396, 1.05);
+    // Strandkörbe / Badehäuschen am Ufer
+    for (let i = 0; i < 4; i++) {
+      const x = ((i * 470 - camX * 0.55) % (CFG.W + 240)) - 120;
+      ctx.fillStyle = i % 2 ? '#f7f0dd' : '#ffe9e0';
+      rr(x, 320, 34, 32, 4); ctx.fill();
+      ctx.fillStyle = COLORS.blue;
+      ctx.beginPath(); ctx.moveTo(x - 4, 322); ctx.lineTo(x + 17, 306); ctx.lineTo(x + 38, 322); ctx.closePath(); ctx.fill();
+    }
+    drawReeds(camX, 0.7, 356);
+  },
+  village(camX, t) {
+    ctx.fillStyle = skyGradient('#bde7f7', '#f6f4e0');
+    ctx.fillRect(0, 0, CFG.W, CFG.H);
+    drawClouds(camX, t);
+    drawHillsFar(camX, '#b9d98a', 52, 336);
+    // Dorf-Silhouette mit Kirchturm
+    for (let i = 0; i < 6; i++) {
+      const x = ((i * 340 - camX * 0.4) % (CFG.W + 260)) - 130;
+      ctx.fillStyle = '#e8ddc8';
+      rr(x, 348, 52, 60, 3); ctx.fill();
+      ctx.fillStyle = '#c0674f';
+      ctx.beginPath(); ctx.moveTo(x - 5, 350); ctx.lineTo(x + 26, 328); ctx.lineTo(x + 57, 350); ctx.closePath(); ctx.fill();
+      if (i % 3 === 0) {                                          // Kirchturm
+        ctx.fillStyle = '#f1e9d6'; rr(x + 70, 300, 26, 108, 3); ctx.fill();
+        ctx.fillStyle = '#8a9aa5';
+        ctx.beginPath(); ctx.moveTo(x + 66, 302); ctx.lineTo(x + 83, 268); ctx.lineTo(x + 100, 302); ctx.closePath(); ctx.fill();
+      }
+    }
+    drawTreeline(camX, 0.6, 424, '#7fae55');
+  },
+  ried(camX, t) {
+    ctx.fillStyle = skyGradient('#cfeef3', '#eef7dc');
+    ctx.fillRect(0, 0, CFG.W, CFG.H);
+    drawClouds(camX, t);
+    drawBirds(camX, t);
+    drawHillsFar(camX, '#a8cf9a', 34, 330);
+    drawWater(camX, t, 368);
+    drawReeds(camX, 0.5, 372);
+    drawReeds(camX, 0.85, 396);
+  },
+  orchard(camX, t) {
+    ctx.fillStyle = skyGradient('#ffe9c4', '#d9f2e2');
+    ctx.fillRect(0, 0, CFG.W, CFG.H);
+    ctx.fillStyle = '#ffca66';
+    ctx.beginPath(); ctx.arc(760, 110, 44, 0, Math.PI * 2); ctx.fill();
+    drawClouds(camX, t);
+    drawHillsFar(camX, '#c2dd96', 56, 340);
+    drawHillsFar(camX * 1.5, '#a3cc74', 40, 388);
+    // Apfelbäume mit roten Punkten
+    for (let i = 0; i < 22; i++) {
+      const x = ((i * 175 - camX * 0.55) % (CFG.W + 160)) - 80;
+      const s = 20 + (i * 41 % 18);
+      ctx.fillStyle = '#6fae4e';
+      ctx.beginPath(); ctx.arc(x, 420 - s, s, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#8a5a35'; ctx.fillRect(x - 3, 420 - s * 0.4, 6, s * 0.4 + 6);
+      ctx.fillStyle = '#e2483c';
+      for (let a = 0; a < 3; a++) {
+        ctx.beginPath();
+        ctx.arc(x - s * 0.5 + a * s * 0.5, 420 - s - 4 + (a % 2) * 10, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
   },
   avenue(camX, t) {
     ctx.fillStyle = skyGradient('#ffd9a0', '#c9ecf9');
@@ -189,8 +291,9 @@ function drawSolid(s, camX) {
   }
 }
 
-/** Ziel: kleine Apotheken-Fassade mit rotem Apotheken-A. */
-function drawGoal(goal, camX, t, branchShort) {
+/** Ziel: Apotheken-Fassade (Sammel-Level) oder Botendienst-Van (Touren). */
+function drawGoal(goal, camX, t, branchShort, mode) {
+  if (mode === 'deliver') { drawGoalVan(goal, camX, t, branchShort); return; }
   const x = goal.x - camX;
   const y = goal.y;
   ctx.fillStyle = COLORS.paper;
@@ -217,6 +320,43 @@ function drawGoal(goal, camX, t, branchShort) {
   text('A', 0, 8, 21, '#fff', 'center', 900);
   ctx.restore();
   text(branchShort, x + goal.w / 2, y + goal.h + 16, 12, COLORS.blueDeep, 'center', 800);
+}
+
+/** Botendienst-Van als Tour-Ziel. */
+function drawGoalVan(goal, camX, t, label) {
+  const x = goal.x - camX;
+  const yB = goal.y + goal.h;                 // Bodenlinie
+  const bounce = Math.sin(t * 5) * 1.5;
+  ctx.save();
+  ctx.translate(x - 10, yB + bounce - 2);
+  // Karosserie
+  ctx.fillStyle = '#fff';
+  rr(0, -52, 94, 40, 7); ctx.fill();
+  ctx.strokeStyle = COLORS.blueDark; ctx.lineWidth = 2;
+  rr(0, -52, 94, 40, 7); ctx.stroke();
+  // Fahrerkabine
+  ctx.fillStyle = COLORS.blue;
+  rr(66, -44, 28, 32, 6); ctx.fill();
+  ctx.fillStyle = COLORS.blueSoft;
+  rr(72, -40, 16, 12, 3); ctx.fill();
+  // Streifen + Logo-Blatt
+  ctx.fillStyle = COLORS.lime;
+  ctx.fillRect(0, -26, 66, 6);
+  ctx.beginPath(); ctx.ellipse(24, -38, 10, 5.5, -0.55, 0, Math.PI * 2); ctx.fill();
+  text('Botendienst', 32, -30, 9, COLORS.blueDark, 'center', 800);
+  // Räder
+  ctx.fillStyle = '#2a2f35';
+  ctx.beginPath(); ctx.arc(20, -8, 9, 0, Math.PI * 2); ctx.arc(72, -8, 9, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#cfd8dd';
+  ctx.beginPath(); ctx.arc(20, -8, 4, 0, Math.PI * 2); ctx.arc(72, -8, 4, 0, Math.PI * 2); ctx.fill();
+  // pulsierende Fahne
+  const pulse = 1 + Math.sin(t * 4) * 0.06;
+  ctx.translate(47, -66); ctx.scale(pulse, pulse);
+  ctx.fillStyle = '#e2483c';
+  rr(-13, -13, 26, 26, 6); ctx.fill();
+  text('A', 0, 7, 18, '#fff', 'center', 900);
+  ctx.restore();
+  text(label, x + 37, yB + 16, 12, COLORS.blueDeep, 'center', 800);
 }
 
 function drawPlayer(p, camX, t) {
@@ -302,7 +442,53 @@ function drawGerm(g, camX) {
   ctx.fill();
 }
 
+/** Wartender Kunde: winkt; nach der Zustellung glücklich mit Paket. */
+function drawCustomer(pk, camX, t) {
+  const x = pk.x - camX + pk.w / 2;
+  const yB = pk.y + pk.h;
+  const happy = pk.taken;
+  ctx.save();
+  ctx.translate(x, yB);
+  // Beine + Körper
+  ctx.strokeStyle = '#5c5148'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-4, -14); ctx.lineTo(-4, -2); ctx.moveTo(5, -14); ctx.lineTo(5, -2); ctx.stroke();
+  ctx.fillStyle = happy ? '#7fb069' : '#e0964f';
+  rr(-10, -34, 20, 21, 5); ctx.fill();
+  // Kopf
+  ctx.fillStyle = COLORS.skin;
+  ctx.beginPath(); ctx.arc(0, -41, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#8d8d8d';
+  ctx.beginPath(); ctx.arc(-1, -44, 7.5, Math.PI * 0.9, Math.PI * 1.9); ctx.fill();
+  // Mund: wartend neutral, danach lachend
+  ctx.strokeStyle = COLORS.ink; ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  if (happy) ctx.arc(1, -39, 3.4, 0.15, Math.PI - 0.15);
+  else ctx.moveTo(-1, -37), ctx.lineTo(4, -37);
+  ctx.stroke();
+  ctx.fillStyle = COLORS.ink;
+  ctx.beginPath(); ctx.arc(3, -43, 1.4, 0, Math.PI * 2); ctx.fill();
+  if (happy) {
+    // Paket im Arm + Herzchen
+    ctx.fillStyle = '#fff'; rr(6, -30, 14, 12, 2); ctx.fill();
+    ctx.strokeStyle = COLORS.blue; ctx.lineWidth = 1.5; rr(6, -30, 14, 12, 2); ctx.stroke();
+    text('♥', 14, -50 + Math.sin(t * 3 + pk.bob) * 3, 12, '#e2483c', 'center', 900);
+  } else {
+    // winkender Arm + Sprechblase "Hier!"
+    const wave = Math.sin(t * 5 + pk.bob) * 0.5;
+    ctx.strokeStyle = '#c97f3e'; ctx.lineWidth = 4.5;
+    ctx.beginPath(); ctx.moveTo(8, -30); ctx.lineTo(15, -40 + wave * 6); ctx.stroke();
+    const bob = Math.sin(t * 3 + pk.bob) * 3;
+    ctx.fillStyle = 'rgba(255,255,255,.95)';
+    rr(-26, -76 + bob, 52, 20, 9); ctx.fill();
+    ctx.strokeStyle = COLORS.blue; ctx.lineWidth = 1.5;
+    rr(-26, -76 + bob, 52, 20, 9); ctx.stroke();
+    text('Hierher!', 0, -62 + bob, 10, COLORS.blueDark, 'center', 800);
+  }
+  ctx.restore();
+}
+
 function drawPickup(pk, camX, t) {
+  if (pk.type === 'delivery') { drawCustomer(pk, camX, t); return; }
   if (pk.taken) return;
   const bob = Math.sin(t * 3 + pk.bob) * 4;
   const x = pk.x - camX;
@@ -336,7 +522,7 @@ function drawPickup(pk, camX, t) {
 
 function drawHUD(game) {
   const lvl = game.level;
-  const branch = BRANCHES[lvl.def.branch];
+  const branch = levelMeta(lvl.def);
 
   ctx.fillStyle = 'rgba(255,255,255,.88)';
   rr(14, 12, 380, 42, 12); ctx.fill();
@@ -345,7 +531,7 @@ function drawHUD(game) {
   ctx.beginPath(); ctx.ellipse(38, 26, 9, 5, -0.6, 0, Math.PI * 2); ctx.fill();
   text('Nestle-Apotheke', 52, 32, 15, COLORS.blue, 'left', 900);
   text(branch.short, 52, 47, 12, COLORS.limeDark, 'left', 800);
-  text(`Level ${game.levelIndex + 1}/4`, 205, 39, 14, COLORS.inkSoft, 'left', 700);
+  text(`Level ${game.levelIndex + 1}/${LEVELS.length}`, 205, 39, 14, COLORS.inkSoft, 'left', 700);
   text(`★ ${game.score}`, 300, 39, 15, COLORS.blueDark, 'left', 900);
 
   // Leben (Kreuze)
@@ -359,7 +545,8 @@ function drawHUD(game) {
   // Bestellungen
   ctx.fillStyle = 'rgba(255,255,255,.88)';
   rr(CFG.W - 250, 40, 128, 30, 10); ctx.fill();
-  text(`Bestellungen ${lvl.ordersGot}/${lvl.ordersTotal}`, CFG.W - 186, 60, 12, COLORS.blueDeep, 'center', 800);
+  const cntLabel = lvl.def.mode === 'deliver' ? 'Pakete' : 'Bestellungen';
+  text(`${cntLabel} ${lvl.ordersGot}/${lvl.ordersTotal}`, CFG.W - 186, 60, 12, COLORS.blueDeep, 'center', 800);
 }
 
 /** Kurzer Einblend-Toast (z. B. Produktname beim Einsammeln). */

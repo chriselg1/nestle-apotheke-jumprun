@@ -154,5 +154,149 @@ const LEVELS = [
             { x: 3380, range: 130 }, { x: 3760, range: 160 }, { x: 4200, range: 240 },
             { x: 4400, range: 150 }],
     goal: { x: 4480, y: CFG.GROUND_Y }
+  },
+
+  /* ================= AUSLIEFERUNGS-TOUREN (Level 5-8) =================
+     Der Botendienst bringt die Pakete zu den Kunden: 'deliver'-Level. */
+
+  /* ---------- 5 — Fischbach ---------- */
+  {
+    tour: 0,
+    mode: 'deliver',
+    customers: ['Frau Fischer', 'Herr Seemann', 'Oma Lore'],
+    width: 4200,
+    par: 85,
+    solids: [
+      ground(0, 700), ground(820, 480), ground(1460, 560), ground(2160, 420),
+      ground(2720, 540), ground(3400, 800),
+      plat(500, 350, 110), plat(940, 335, 110), plat(1180, 270, 100),
+      mover(1560, 330, 120, 'x', 140, 60),
+      plat(1880, 300, 110),
+      plat(2260, 340, 110), plat(2400, 240, 100),
+      mover(2860, 320, 120, 'y', 130, 56),
+      plat(3120, 250, 110),
+      plat(3600, 345, 120), plat(3860, 290, 110)
+    ],
+    orders: [{ x: 1220, y: 247 }, { x: 2450, y: 217 }, { x: 3980, y: 429 }],
+    pills: [].concat(
+      pills(160, 400, 4), pills(530, 304, 3),
+      pillArc(700, 396, 4, 44, 92), pillArc(1320, 396, 5, 42, 100),
+      pills(1910, 254, 3), pillArc(2040, 396, 4, 44, 96),
+      pills(3150, 204, 3), pillArc(3280, 396, 4, 42, 100),
+      pills(3630, 299, 3), pills(3890, 244, 3)
+    ),
+    germs: [{ x: 340, range: 200 }, { x: 1010, range: 150 }, { x: 1720, range: 200 },
+            { x: 2320, range: 120 }, { x: 2940, range: 170 }, { x: 3560, range: 200 },
+            { x: 3920, range: 160 }],
+    goal: { x: 4060, y: CFG.GROUND_Y }
+  },
+
+  /* ---------- 6 — Ailingen ---------- */
+  {
+    tour: 1,
+    mode: 'deliver',
+    customers: ['Herr Bauer', 'Frau Blum', 'Familie Kern'],
+    width: 4500,
+    par: 95,
+    solids: [
+      ground(0, 600), ground(760, 400), ground(1320, 480), ground(1960, 380),
+      ground(2500, 460), ground(3120, 400), ground(3680, 820),
+      plat(420, 345, 110), plat(880, 330, 110),
+      mover(1180, 325, 110, 'x', 130, 64),
+      plat(1560, 340, 110), plat(1700, 245, 100),
+      mover(2120, 330, 110, 'y', 140, 60),
+      plat(2420, 265, 100),
+      plat(2760, 345, 110), plat(2900, 250, 100),
+      mover(3300, 340, 110, 'x', 140, 70),
+      plat(3620, 300, 110), plat(3860, 240, 100)
+    ],
+    orders: [{ x: 930, y: 307 }, { x: 2470, y: 242 }, { x: 3910, y: 217 }],
+    pills: [].concat(
+      pills(150, 400, 4), pills(450, 299, 3),
+      pillArc(620, 396, 4, 44, 96), pillArc(1200, 396, 5, 42, 100),
+      pills(1730, 199, 3), pillArc(1820, 396, 4, 44, 100),
+      pills(2930, 204, 3), pillArc(3000, 396, 4, 42, 96),
+      pills(3650, 254, 3), pillArc(3540, 396, 4, 44, 104),
+      pills(4050, 400, 3)
+    ),
+    germs: [{ x: 300, range: 190 }, { x: 950, range: 140 }, { x: 1560, range: 200 },
+            { x: 2120, range: 130 }, { x: 2700, range: 180 }, { x: 3300, range: 140 },
+            { x: 3900, range: 200 }, { x: 4200, range: 170 }],
+    goal: { x: 4360, y: CFG.GROUND_Y }
+  },
+
+  /* ---------- 7 — Eriskirch ---------- */
+  {
+    tour: 2,
+    mode: 'deliver',
+    customers: ['Frau Riedmüller', 'Herr Storch', 'Oma Frieda'],
+    width: 4800,
+    par: 105,
+    solids: [
+      ground(0, 560), ground(720, 360), ground(1240, 320), ground(1720, 420),
+      ground(2300, 320), ground(2780, 380), ground(3320, 320), ground(3800, 1000),
+      plat(380, 340, 100), plat(940, 335, 100),
+      mover(1120, 330, 110, 'y', 130, 58),
+      plat(1300, 340, 90), plat(1420, 270, 100),
+      mover(1940, 340, 110, 'x', 150, 66),
+      plat(2240, 260, 100),
+      mover(2700, 330, 110, 'y', 150, 62),
+      plat(3000, 280, 100),
+      plat(3480, 335, 100), plat(3600, 235, 90),
+      plat(4100, 340, 110), plat(4360, 270, 100)
+    ],
+    orders: [{ x: 985, y: 312 }, { x: 2290, y: 237 }, { x: 3645, y: 212 }],
+    pills: [].concat(
+      pills(150, 400, 4), pills(410, 294, 3),
+      pillArc(580, 396, 4, 44, 100), pillArc(1580, 396, 5, 42, 104),
+      pills(1450, 224, 3), pillArc(2440, 396, 4, 44, 100),
+      pills(3030, 234, 3), pillArc(3180, 396, 4, 42, 100),
+      pills(3510, 289, 3), pillArc(3690, 396, 4, 44, 104),
+      pills(4130, 294, 3), pills(4390, 224, 3)
+    ),
+    germs: [{ x: 260, range: 190 }, { x: 880, range: 130 }, { x: 1380, range: 120 },
+            { x: 1900, range: 180 }, { x: 2440, range: 120 }, { x: 2960, range: 150 },
+            { x: 3460, range: 120 }, { x: 4000, range: 200 }, { x: 4400, range: 220 }],
+    goal: { x: 4650, y: CFG.GROUND_Y }
+  },
+
+  /* ---------- 8 — Oberteuringen ---------- */
+  {
+    tour: 3,
+    mode: 'deliver',
+    customers: ['Frau Sommer', 'Herr Winter', 'Familie Berg'],
+    width: 5000,
+    par: 115,
+    solids: [
+      ground(0, 520), ground(680, 300), ground(1140, 340), ground(1640, 300),
+      ground(2100, 360), ground(2620, 300), ground(3080, 340), ground(3580, 300),
+      ground(4040, 960),
+      plat(340, 340, 100), plat(760, 325, 100),
+      mover(1000, 330, 110, 'y', 140, 64),
+      plat(1300, 335, 100), plat(1440, 240, 90),
+      mover(1780, 340, 110, 'x', 150, 72),
+      plat(2100, 255, 100),
+      mover(2540, 330, 110, 'y', 150, 66),
+      plat(2820, 270, 100),
+      plat(3200, 335, 100), plat(3330, 235, 90),
+      mover(3720, 340, 110, 'x', 160, 78),
+      plat(4040, 300, 100), plat(4260, 215, 90),
+      plat(4650, 350, 120)
+    ],
+    orders: [{ x: 805, y: 302 }, { x: 2150, y: 232 }, { x: 4305, y: 192 }],
+    pills: [].concat(
+      pills(140, 400, 4), pills(370, 294, 3),
+      pillArc(540, 396, 4, 42, 104), pillArc(1500, 396, 4, 42, 108),
+      pills(1470, 194, 3), pillArc(1980, 396, 4, 44, 100),
+      pills(2850, 224, 3), pillArc(2960, 396, 4, 42, 100),
+      pills(3360, 189, 3), pillArc(3440, 396, 4, 44, 104),
+      pills(4060, 254, 3), pillArc(3920, 396, 4, 42, 108),
+      pills(4680, 304, 3)
+    ),
+    germs: [{ x: 250, range: 180 }, { x: 800, range: 120 }, { x: 1300, range: 140 },
+            { x: 1760, range: 120 }, { x: 2260, range: 140 }, { x: 2740, range: 120 },
+            { x: 3220, range: 140 }, { x: 3700, range: 120 }, { x: 4200, range: 200 },
+            { x: 4500, range: 180 }, { x: 4750, range: 140 }],
+    goal: { x: 4850, y: CFG.GROUND_Y }
   }
 ];
