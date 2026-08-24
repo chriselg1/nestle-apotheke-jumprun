@@ -357,6 +357,80 @@ function drawShip(camX, t) {
   ctx.restore();
 }
 
+/** Hofen (Level 3): Steinkapelle, Schulmuseum-Villa und
+    St.-Elisabeth-Realschule — nach Fotos aus Friedrichshafen. */
+function drawHofen(camX) {
+  const SPAN = 1700;
+  for (let k = -1; k < 2; k++) {
+    const x0 = ((-camX * 0.38) % SPAN) + k * SPAN + 150;
+
+    // Steinkapelle mit Spitzturm und Glocke
+    ctx.fillStyle = '#b9b4a6';                                 // Bruchstein-Fassade
+    ctx.fillRect(x0, 366, 48, 52);
+    ctx.beginPath();                                           // Giebel
+    ctx.moveTo(x0 - 4, 368); ctx.lineTo(x0 + 24, 340); ctx.lineTo(x0 + 52, 368);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#a49f91';                                 // Turm
+    ctx.fillRect(x0 + 17, 312, 14, 34);
+    ctx.fillStyle = '#2f2b26';                                 // Glockenöffnung
+    ctx.fillRect(x0 + 21, 318, 6, 9);
+    ctx.fillStyle = '#4c7a68';                                 // grüner Spitzhelm
+    ctx.beginPath();
+    ctx.moveTo(x0 + 14, 314); ctx.lineTo(x0 + 24, 284); ctx.lineTo(x0 + 34, 314);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#8d887b'; ctx.lineWidth = 1.6;          // Rosette
+    ctx.fillStyle = '#e8e4d8';
+    ctx.beginPath(); ctx.arc(x0 + 24, 378, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#5c4632';                                 // Spitzbogen-Portal
+    ctx.beginPath();
+    ctx.moveTo(x0 + 18, 418); ctx.lineTo(x0 + 18, 402);
+    ctx.quadraticCurveTo(x0 + 24, 392, x0 + 30, 402);
+    ctx.lineTo(x0 + 30, 418); ctx.closePath(); ctx.fill();
+
+    // Schulmuseum: apricotfarbene Villa mit Walmdach, Gauben und Fahnen
+    const vx = x0 + 330;
+    ctx.fillStyle = '#c9cdd1';                                 // Sockelgeschoss
+    ctx.fillRect(vx, 400, 92, 18);
+    ctx.fillStyle = '#f2c491';                                 // Fassade
+    ctx.fillRect(vx, 362, 92, 40);
+    ctx.fillStyle = '#7a5643';                                 // Walmdach
+    ctx.beginPath();
+    ctx.moveTo(vx - 6, 364); ctx.lineTo(vx + 22, 336); ctx.lineTo(vx + 70, 336);
+    ctx.lineTo(vx + 98, 364); ctx.closePath(); ctx.fill();
+    for (const dx of [26, 54]) {                               // Gauben
+      ctx.fillStyle = '#f6e2c8';
+      ctx.fillRect(vx + dx, 342, 10, 10);
+      ctx.fillStyle = '#5c4030';
+      ctx.beginPath();
+      ctx.moveTo(vx + dx - 2, 344); ctx.lineTo(vx + dx + 5, 338); ctx.lineTo(vx + dx + 12, 344);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.fillStyle = '#fff';                                    // Fenster
+    for (let i = 0; i < 4; i++) ctx.fillRect(vx + 10 + i * 21, 370, 9, 13);
+    for (const [i, farbe] of [['#f3c614', 0], ['#d0392e', 1], ['#f4f4f4', 2]].map((c, i) => [i, c[0]])) {
+      const fxp = vx - 18 + i * 9;                             // Fahnen davor
+      ctx.strokeStyle = '#8a949c'; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(fxp, 418); ctx.lineTo(fxp, 356); ctx.stroke();
+      ctx.fillStyle = farbe;
+      ctx.fillRect(fxp, 356, 6, 14);
+    }
+
+    // St.-Elisabeth-Realschule: modernes Schulhaus mit Schild
+    const sx = x0 + 760;
+    ctx.fillStyle = '#e9e6df';
+    ctx.fillRect(sx, 372, 130, 46);
+    ctx.fillStyle = '#98b8c8';                                 // Fensterband
+    ctx.fillRect(sx + 8, 382, 114, 12);
+    ctx.fillStyle = '#5c7a68';                                 // Eingang
+    ctx.fillRect(sx + 56, 400, 18, 18);
+    ctx.fillStyle = '#4a4a4a';                                 // Schild
+    rr(sx + 22, 356, 86, 14, 3); ctx.fill();
+    text('St. Elisabeth', sx + 65, 366, 9, '#fff', 'center', 800);
+    ctx.fillStyle = COLORS.lime;                               // grünes Blatt-Logo
+    ctx.beginPath(); ctx.ellipse(sx + 102, 360, 4, 2.4, -0.5, 0, Math.PI * 2); ctx.fill();
+  }
+}
+
 const SCENES = {
   lake(camX, t) {
     ctx.fillStyle = skyGradient('#bfe9fb', '#e8f7ff');
@@ -389,6 +463,7 @@ const SCENES = {
     drawClouds(camX, t);
     drawHillsFar(camX, '#b9d98a', 60, 340);
     drawHillsFar(camX * 1.6, '#9cc86c', 42, 384);
+    drawHofen(camX);
     drawTreeline(camX, 0.55, 420, '#6fae4e');
   },
   shore(camX, t) {
