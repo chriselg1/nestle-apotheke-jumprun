@@ -145,6 +145,129 @@ function drawBirds(camX, t) {
   }
 }
 
+/* --- Friedrichshafener Wahrzeichen für die Bodensee-Szene --- */
+
+/** Ferne Alpenkette am Schweizer Ufer. */
+function drawAlps(camX) {
+  ctx.fillStyle = 'rgba(150,175,200,.45)';
+  ctx.beginPath();
+  ctx.moveTo(0, 348);
+  for (let x = 0; x <= CFG.W; x += 10) {
+    const wx = x + camX * 0.12;
+    const y = 320 - Math.abs(Math.sin(wx * 0.008)) * 34 - Math.abs(Math.sin(wx * 0.021 + 2)) * 14;
+    ctx.lineTo(x, y);
+  }
+  ctx.lineTo(CFG.W, 348);
+  ctx.closePath();
+  ctx.fill();
+}
+
+/** Uferlinie mit Schlosskirche (Zwiebeltürme), Häusern und Bäumen. */
+function drawFnSkyline(camX) {
+  const SPAN = 1600;
+  for (let k = -1; k < 2; k++) {
+    const x0 = ((-camX * 0.35) % SPAN) + k * SPAN + 260;
+    // Häuserzeile
+    for (let i = 0; i < 4; i++) {
+      const hx = x0 - 190 + i * 52;
+      ctx.fillStyle = i % 2 ? '#f0e6d2' : '#e8dcc4';
+      ctx.fillRect(hx, 322, 40, 28);
+      ctx.fillStyle = '#c0674f';
+      ctx.beginPath();
+      ctx.moveTo(hx - 3, 324); ctx.lineTo(hx + 20, 310); ctx.lineTo(hx + 43, 324);
+      ctx.closePath(); ctx.fill();
+    }
+    // Schlosskirche: zwei Türme mit Zwiebelhauben, Schiff dazwischen
+    ctx.fillStyle = '#e7b96a';
+    ctx.fillRect(x0 + 24, 322, 44, 28);                       // Kirchenschiff
+    ctx.fillStyle = '#b45a45';
+    ctx.beginPath();
+    ctx.moveTo(x0 + 20, 324); ctx.lineTo(x0 + 46, 312); ctx.lineTo(x0 + 72, 324);
+    ctx.closePath(); ctx.fill();
+    for (const tx of [x0, x0 + 66]) {
+      ctx.fillStyle = '#f5ecda';
+      ctx.fillRect(tx, 268, 26, 82);                          // Turm
+      ctx.fillStyle = '#d9cbae';
+      ctx.fillRect(tx, 296, 26, 4);                           // Gesims
+      ctx.fillStyle = '#8a94a0';
+      ctx.fillRect(tx + 8, 276, 10, 14);                      // Schallfenster
+      ctx.fillStyle = '#3c5b58';                              // Zwiebelhaube (Kupfer-Patina)
+      ctx.beginPath();
+      ctx.moveTo(tx - 3, 268);
+      ctx.bezierCurveTo(tx - 6, 250, tx + 8, 248, tx + 13, 236);
+      ctx.bezierCurveTo(tx + 18, 248, tx + 32, 250, tx + 29, 268);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#3c5b58';                            // Turmspitze + Kugel
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(tx + 13, 236); ctx.lineTo(tx + 13, 226); ctx.stroke();
+      ctx.beginPath(); ctx.arc(tx + 13, 224, 2.5, 0, Math.PI * 2); ctx.fill();
+    }
+    // Bäume am Ufer
+    ctx.fillStyle = '#7fae55';
+    for (const dx of [-230, 108, 150]) {
+      ctx.beginPath(); ctx.arc(x0 + dx, 336, 15, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+}
+
+/** Die große Fontäne im See — das Wahrzeichen der Uferpromenade. */
+function drawFountain(camX, t) {
+  const SPAN = 2100;
+  const fx = ((760 - camX * 0.65) % SPAN + SPAN) % SPAN - 200;
+  if (fx < -80 || fx > CFG.W + 80) return;
+  const top = 250 + Math.sin(t * 2.2) * 6;
+  const base = 402;
+  // Wassersäule
+  const g = ctx.createLinearGradient(0, top, 0, base);
+  g.addColorStop(0, 'rgba(255,255,255,.9)');
+  g.addColorStop(1, 'rgba(255,255,255,.25)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.moveTo(fx - 2, base);
+  ctx.quadraticCurveTo(fx - 4, (top + base) / 2, fx - 1, top);
+  ctx.lineTo(fx + 1, top);
+  ctx.quadraticCurveTo(fx + 4, (top + base) / 2, fx + 2, base);
+  ctx.closePath(); ctx.fill();
+  // Gischt oben: fallende Bögen zu beiden Seiten
+  ctx.strokeStyle = 'rgba(255,255,255,.75)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 3; i++) {
+    const sw = 8 + i * 7 + Math.sin(t * 3 + i) * 2;
+    ctx.beginPath();
+    ctx.moveTo(fx, top);
+    ctx.quadraticCurveTo(fx - sw, top + 6, fx - sw - 3, top + 26 + i * 8);
+    ctx.moveTo(fx, top);
+    ctx.quadraticCurveTo(fx + sw, top + 6, fx + sw + 3, top + 26 + i * 8);
+    ctx.stroke();
+  }
+  // Ringe am Fuß
+  ctx.strokeStyle = 'rgba(255,255,255,.5)';
+  ctx.beginPath(); ctx.ellipse(fx, base, 22 + Math.sin(t * 2) * 4, 5, 0, 0, Math.PI * 2); ctx.stroke();
+}
+
+/** Mastenwald des Yachthafens an der Wasserlinie. */
+function drawMasts(camX) {
+  const SPAN = 1600;
+  for (let k = -1; k < 2; k++) {
+    const x0 = ((-camX * 0.45) % SPAN) + k * SPAN + 1050;
+    ctx.strokeStyle = '#6d7f8a';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 7; i++) {
+      const mx = x0 + i * 13 + (i % 3) * 4;
+      const h = 30 + (i * 31 % 26);
+      ctx.beginPath();
+      ctx.moveTo(mx, 352); ctx.lineTo(mx, 352 - h);
+      ctx.stroke();
+      if (i % 2 === 0) {                                       // Wimpel
+        ctx.fillStyle = i % 4 ? '#e2483c' : COLORS.lime;
+        ctx.beginPath();
+        ctx.moveTo(mx, 352 - h); ctx.lineTo(mx + 7, 352 - h + 3); ctx.lineTo(mx, 352 - h + 6);
+        ctx.closePath(); ctx.fill();
+      }
+    }
+  }
+}
+
 const SCENES = {
   lake(camX, t) {
     ctx.fillStyle = skyGradient('#bfe9fb', '#e8f7ff');
@@ -160,38 +283,11 @@ const SCENES = {
     ctx.fillStyle = skyGradient('#a8ddf5', '#fdf3d8');
     ctx.fillRect(0, 0, CFG.W, CFG.H);
     drawClouds(camX, t);
-    drawHillsFar(camX, '#8fbfd8', 46, 320);
+    drawAlps(camX);
+    drawFnSkyline(camX);
     drawWater(camX, t, 348);
-    // Hafenkräne an der Kaimauer (mit Ausleger, Seil und Container)
-    for (let i = 0; i < 3; i++) {
-      const x = ((i * 420 - camX * 0.4) % (CFG.W + 300)) - 150;
-      ctx.strokeStyle = COLORS.blueDeep;
-      ctx.lineWidth = 5;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(x, 348); ctx.lineTo(x, 216);                  // Turm
-      ctx.moveTo(x - 34, 228); ctx.lineTo(x + 96, 228);        // Ausleger + Gegenausleger
-      ctx.moveTo(x, 216); ctx.lineTo(x + 44, 228);             // Abspannung vorn
-      ctx.moveTo(x, 216); ctx.lineTo(x - 26, 228);             // Abspannung hinten
-      ctx.stroke();
-      ctx.fillStyle = COLORS.blueDeep;                         // Führerhaus + Gegengewicht
-      ctx.fillRect(x - 8, 228, 16, 14);
-      ctx.fillRect(x - 38, 228, 14, 10);
-      ctx.strokeStyle = '#5d7a8a';                             // Tragseil
-      ctx.lineWidth = 2;
-      const sway = Math.sin(t * 0.8 + i * 2) * 3;
-      ctx.beginPath();
-      ctx.moveTo(x + 78, 228); ctx.lineTo(x + 78 + sway, 272);
-      ctx.stroke();
-      ctx.fillStyle = i % 2 ? '#c0674f' : COLORS.lime;         // hängender Container
-      ctx.fillRect(x + 64 + sway, 272, 28, 14);
-      ctx.strokeStyle = 'rgba(0,0,0,.15)';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(x + 64 + sway, 272, 28, 14);
-      // Fundament auf der Kaimauer
-      ctx.fillStyle = COLORS.blueDeep;
-      ctx.fillRect(x - 12, 342, 24, 8);
-    }
+    drawFountain(camX, t);
+    drawMasts(camX);
     drawSail(((430 - camX * 0.5 + t * 10) % (CFG.W + 200)) - 100, 396, 1.15);
   },
   hills(camX, t) {
