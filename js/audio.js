@@ -1,13 +1,13 @@
 /* audio.js — Chiptune-Hintergrundmusik im 8-Bit-Stil (Web Audio API).
-   Eigenkomposition "Bodensee-Sprint": Wellen-Arpeggios, Möwenrufe,
-   Fährhorn — als Bridge ein Zitat der gemeinfreien "Schwäbischen
-   Eisenbahn" (traditionelles Volkslied, endet am Bodensee). */
+   "Auf de schwäbsche Eisebahne" (traditionelles Volkslied, gemeinfrei —
+   endet bekanntlich am Bodensee) als Polka mit Oom-Pah-Bass, Dampflok-
+   Rhythmus und Zugpfeife; dazu ein eigenes Wellen-Zwischenspiel. */
 
 'use strict';
 
 const AudioFX = (() => {
   const STORAGE_KEY = 'nestle-jumprun-sound';
-  const BPM = 138;
+  const BPM = 132;
   const STEP = 60 / BPM / 4;              // Sechzehntel
   const MASTER_VOL = 0.16;
   const LOOKAHEAD_S = 0.35;
@@ -26,31 +26,44 @@ const AudioFX = (() => {
   const f = (m) => 440 * Math.pow(2, (m - 69) / 12);
 
   /* ---------- Komposition (Midi-Noten, Länge in Sechzehnteln, 0 = Pause) ----------
-     Form: A A B A — A = eigene "Wellen"-Melodie, B = Eisenbahn-Zitat. */
-  const N = { C4: 60, D4: 62, E4: 64, F4: 65, G4: 67, A4: 69, B3: 59, B4: 71, C5: 72, D5: 74, E5: 76 };
-  const A_MELODY = [
+     Form: STROPHE - REFRAIN - WELLEN-ZWISCHENSPIEL - REFRAIN.
+     Strophe/Refrain: "Auf de schwäbsche Eisebahne" (gemeinfrei). */
+  const N = { B3: 59, C4: 60, D4: 62, E4: 64, F4: 65, G4: 67, A4: 69, B4: 71, C5: 72, D5: 74, E5: 76 };
+
+  const VERSE_MELODY = [   // "Auf de schwäbsche Eisebahne gibts gar viele Haltstatione …"
+    [N.C4, 2], [N.E4, 2], [N.G4, 2], [N.G4, 2], [N.G4, 2], [N.G4, 2], [N.A4, 2], [N.G4, 2],
+    [N.F4, 2], [N.F4, 2], [N.F4, 2], [N.D4, 2], [N.E4, 2], [N.E4, 2], [N.C4, 2], [N.C4, 2],
+    [N.D4, 2], [N.D4, 2], [N.D4, 2], [N.D4, 2], [N.F4, 2], [N.F4, 2], [N.D4, 2], [N.B3, 2],
+    [N.E4, 2], [N.C4, 2], [N.D4, 2], [N.B3, 2], [N.C4, 6], [0, 2]
+  ];
+  const REFRAIN_MELODY = [ // "Trulla trulla trullala … Schtuegert, Ulm und Biberach …"
+    [N.G4, 2], [N.G4, 2], [N.E4, 2], [N.E4, 2], [N.C4, 2], [N.C4, 2], [0, 4],
+    [N.G4, 2], [N.G4, 2], [N.F4, 2], [N.F4, 2], [N.D4, 2], [N.D4, 2], [0, 4],
+    [N.C4, 2], [N.E4, 2], [N.G4, 2], [N.G4, 2], [N.A4, 2], [N.A4, 2], [N.G4, 4],
+    [N.G4, 2], [N.F4, 2], [N.E4, 2], [N.D4, 2], [N.C4, 4], [0, 2], [N.C5, 2]   // "… ha!"
+  ];
+  const WAVE_MELODY = [    // eigenes Bodensee-Zwischenspiel
     [N.E4, 2], [N.G4, 2], [N.C5, 2], [N.G4, 2], [N.E4, 2], [N.G4, 2], [N.C5, 4],
     [N.D5, 2], [N.C5, 2], [N.A4, 2], [N.C5, 2], [N.G4, 6], [0, 2],
     [N.F4, 2], [N.A4, 2], [N.D5, 2], [N.A4, 2], [N.F4, 2], [N.A4, 2], [N.D5, 4],
     [N.E5, 2], [N.D5, 2], [N.B4, 2], [N.D5, 2], [N.C5, 6], [0, 2]
   ];
-  const B_MELODY = [   // "Auf de schwäbsche Eisebahne …" (gemeinfrei)
-    [N.G4, 2], [N.G4, 2], [N.G4, 2], [N.E4, 2], [N.C4, 3], [N.E4, 1], [N.G4, 4],
-    [N.G4, 2], [N.G4, 2], [N.G4, 2], [N.E4, 2], [N.C4, 8],
-    [N.F4, 2], [N.F4, 2], [N.F4, 2], [N.D4, 2], [N.B3, 3], [N.D4, 1], [N.F4, 4],
-    [N.G4, 2], [N.F4, 2], [N.E4, 2], [N.D4, 2], [N.C4, 8]
-  ];
-  const A_BASS = [36, 36, 43, 43, 41, 41, 43, 43, 36, 36, 43, 43, 41, 43, 36, 36];   // je halbe Note
-  const B_BASS = [36, 36, 43, 43, 36, 36, 43, 36, 41, 41, 43, 43, 43, 43, 36, 36];
 
-  function expand(melody) {
+  // Harmonie-Grundtöne je halben Takt (für Oom-Pah)
+  const VERSE_BASS = [36, 36, 41, 36, 43, 43, 43, 36];
+  const REFRAIN_BASS = [36, 36, 43, 43, 36, 41, 43, 36];
+  const WAVE_BASS = [36, 43, 41, 43, 36, 43, 43, 36];
+
+  function expand(melody, bass, kind) {
     const seq = [];
     let pos = 0;
     for (const [note, len] of melody) { if (note) seq.push({ pos, note, len }); pos += len; }
-    return { seq, len: pos };
+    return { seq, len: pos, bass, kind };
   }
-  const A = expand(A_MELODY), B = expand(B_MELODY);
-  const FORM = [A, A, B, A];
+  const VERSE = expand(VERSE_MELODY, VERSE_BASS, 'verse');
+  const REFRAIN = expand(REFRAIN_MELODY, REFRAIN_BASS, 'refrain');
+  const WAVE = expand(WAVE_MELODY, WAVE_BASS, 'wave');
+  const FORM = [VERSE, REFRAIN, WAVE, REFRAIN];
   const FORM_LEN = FORM.reduce((s, p) => s + p.len, 0);   // in Sechzehnteln
 
   /* ---------- Klangbausteine ---------- */
@@ -103,35 +116,61 @@ const AudioFX = (() => {
     blip('sawtooth', f(45), t0, 0.9, 0.3);
   }
 
+  function trainWhistle(t0) { // zweitönige Dampfpfeife: "tü-tüüü"
+    blip('square', f(81), t0, 0.16, 0.35, f(80));
+    blip('square', f(76), t0, 0.16, 0.25, f(75));
+    blip('square', f(81), t0 + 0.22, 0.5, 0.35, f(79));
+    blip('square', f(76), t0 + 0.22, 0.5, 0.25, f(74));
+  }
+
+  function chuff(t0, vol) { // Dampflok-"tschuff": gefilterte Noise-Wolke
+    const s = ctx.createBufferSource();
+    const g = ctx.createGain();
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.value = 1100; bp.Q.value = 0.8;
+    s.buffer = noiseBuf;
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.09);
+    s.connect(bp); bp.connect(g); g.connect(master);
+    s.start(t0); s.stop(t0 + 0.1);
+  }
+
   /* ---------- Sequencer ---------- */
 
   function partAt(step) {
     let s = step % FORM_LEN;
-    for (const p of FORM) { if (s < p.len) return { part: p, local: s }; s -= p.len; }
-    return { part: A, local: 0 };
+    for (let i = 0; i < FORM.length; i++) {
+      const p = FORM[i];
+      if (s < p.len) return { part: p, local: s, idx: i };
+      s -= p.len;
+    }
+    return { part: VERSE, local: 0, idx: 0 };
   }
 
   function scheduleStep(step, t0) {
-    const { part, local } = partAt(step);
+    const { part, local, idx } = partAt(step);
     // Melodie (Rechteck — der NES-Klang)
     for (const n of part.seq) {
-      if (n.pos === local) blip('square', f(n.note), t0, n.len * STEP * 0.92, 0.55);
+      if (n.pos === local) blip('square', f(n.note), t0, n.len * STEP * 0.9, 0.55);
     }
-    // Wellen-Arpeggio (leises Dreieck wie Wellenschlag)
-    if (local % 2 === 0) {
-      const wave = [N.C4, N.E4, N.G4, N.E4][(local / 2) % 4] + (part === B ? -12 : 0);
+    // Oom-Pah-Polka: Grundton auf die Zählzeit, Akkord-Stich dazwischen
+    const root = part.bass[Math.floor(local / 8) % part.bass.length];
+    if (local % 8 === 0) blip('triangle', f(root), t0, STEP * 3, 0.55);           // Oom
+    if (local % 8 === 4) {                                                        // Pah
+      blip('square', f(root + 28), t0, STEP * 1.4, 0.14);
+      blip('square', f(root + 31), t0, STEP * 1.4, 0.14);
+    }
+    // Dampflok-Rhythmus: tschuff-tschuff auf jeder Viertel
+    if (local % 4 === 0) chuff(t0, local % 8 === 0 ? 0.22 : 0.13);
+    // Wellen-Arpeggio nur im Zwischenspiel (Dreieck wie Wellenschlag)
+    if (part.kind === 'wave' && local % 2 === 0) {
+      const wave = [N.C4, N.E4, N.G4, N.E4][(local / 2) % 4];
       blip('triangle', f(wave + 12), t0, STEP * 1.6, 0.16);
     }
-    // Bass (halbe Noten)
-    const bassLine = part === B ? B_BASS : A_BASS;
-    if (local % 8 === 0) blip('triangle', f(bassLine[(local / 8) % bassLine.length]), t0, STEP * 7, 0.5);
-    // Hi-Hat auf Achteln, betont auf der Zählzeit
-    if (local % 4 === 0) hat(t0, local % 8 === 0 ? 0.25 : 0.12);
-    // Bodensee-Färbung: Fährhorn am Formanfang, Möwen sparsam
-    const abs = step % FORM_LEN;
-    if (abs === 0) ferryHorn(t0);
-    if (abs === A.len * 2 + 8) seagull(t0);          // Möwe über der Bridge
-    if (abs === FORM_LEN - 16) seagull(t0 + STEP);
+    // Effekte: Fährhorn am Anfang, Zugpfeife vor jedem Refrain, Möwe im Zwischenspiel
+    if (step % FORM_LEN === 0) ferryHorn(t0);
+    if (part.kind === 'refrain' && local === 0) trainWhistle(t0 - STEP * 2);
+    if (part.kind === 'wave' && local === 16) seagull(t0);
   }
 
   function tick() {
