@@ -530,6 +530,309 @@ function drawPlane(camX, t) {
   ctx.restore();
 }
 
+/** Ailingen (Level 6): Hügelkapelle mit Alpenblick, Wappenturm mit
+    Treppengiebel und Uhr, Freibad mit gelber Rutsche, Apfelbäume. */
+function drawAilingen(camX, t) {
+  const SPAN = 1800;
+  for (let k = -1; k < 2; k++) {
+    const x0 = ((-camX * 0.4) % SPAN) + k * SPAN + 120;
+
+    // Kapelle auf der Wiesenkuppe (Antoniuskapelle-Motiv)
+    ctx.fillStyle = '#9ec86e';                                 // Kuppe
+    ctx.beginPath(); ctx.ellipse(x0 + 40, 412, 110, 26, 0, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = '#f4f1e8';                                 // Kirchenschiff
+    ctx.fillRect(x0 + 22, 364, 42, 32);
+    ctx.fillStyle = '#c65a3f';                                 // rotes Satteldach
+    ctx.beginPath();
+    ctx.moveTo(x0 + 16, 366); ctx.lineTo(x0 + 43, 346); ctx.lineTo(x0 + 70, 366);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#f4f1e8';                                 // Turm
+    ctx.fillRect(x0 + 6, 344, 14, 52);
+    ctx.fillStyle = '#4a4f55';                                 // dunkle Zwiebelhaube
+    ctx.beginPath();
+    ctx.moveTo(x0 + 4, 344);
+    ctx.bezierCurveTo(x0 + 2, 332, x0 + 10, 330, x0 + 13, 322);
+    ctx.bezierCurveTo(x0 + 16, 330, x0 + 24, 332, x0 + 22, 344);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#7a6a55';                                 // Fensterchen
+    ctx.fillRect(x0 + 10, 352, 6, 8);
+    ctx.fillRect(x0 + 38, 372, 9, 12);
+    // Apfelbäume daneben (Wappen: Apfelzweig)
+    for (const dx of [96, 128]) {
+      ctx.fillStyle = '#6fae4e';
+      ctx.beginPath(); ctx.arc(x0 + dx, 384, 15, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#8a5a35'; ctx.fillRect(x0 + dx - 2, 392, 5, 14);
+      ctx.fillStyle = '#c22f26';
+      ctx.beginPath();
+      ctx.arc(x0 + dx - 6, 380, 2.6, 0, Math.PI * 2);
+      ctx.arc(x0 + dx + 7, 388, 2.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Ortsmitte: Wappenturm mit Treppengiebel + Uhr, Häuser
+    const wx = x0 + 420;
+    for (let i = 0; i < 3; i++) {                              // Häuserzeile
+      const hx = wx - 150 + i * 54;
+      ctx.fillStyle = i % 2 ? '#f0e6d2' : '#e8dcc4';
+      ctx.fillRect(hx, 372, 42, 36);
+      ctx.fillStyle = '#c0674f';
+      ctx.beginPath();
+      ctx.moveTo(hx - 4, 374); ctx.lineTo(hx + 21, 358); ctx.lineTo(hx + 46, 374);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.fillStyle = '#f8f6f0';                                 // Turm
+    ctx.fillRect(wx, 322, 28, 86);
+    ctx.fillStyle = '#f8f6f0';                                 // Treppengiebel
+    for (let s = 0; s < 4; s++) ctx.fillRect(wx + 3 + s * 0, 316 - s * 6, 28 - s * 6, 6);
+    for (let s = 0; s < 4; s++) ctx.fillRect(wx + s * 3, 316 - s * 6, 28 - s * 6, 6);
+    ctx.strokeStyle = '#4a4a4a'; ctx.lineWidth = 1.4;          // Uhr (wie im Wappen)
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(wx + 14, 342, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(wx + 14, 342); ctx.lineTo(wx + 14, 337);
+    ctx.moveTo(wx + 14, 342); ctx.lineTo(wx + 18, 344);
+    ctx.stroke();
+    ctx.fillStyle = '#4a4a4a';                                 // Schlitzfenster
+    for (let i = 0; i < 3; i++) ctx.fillRect(wx + 11, 356 + i * 15, 6, 9);
+
+    // Freibad: Becken, gelbe Rutsche, Liegewiese
+    const px = x0 + 900;
+    ctx.fillStyle = '#e6f5fb';                                 // Beckenrand
+    rr(px - 6, 388, 116, 22, 8); ctx.fill();
+    ctx.fillStyle = '#5db9e2';                                 // Wasser
+    rr(px, 392, 104, 14, 6); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.7)';                  // Kräusel
+    ctx.lineWidth = 1.6;
+    for (let i = 0; i < 3; i++) {
+      const wxr = px + 14 + i * 32 + Math.sin(t * 3 + i) * 3;
+      ctx.beginPath();
+      ctx.moveTo(wxr, 398); ctx.quadraticCurveTo(wxr + 6, 396, wxr + 12, 398);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = '#f3c614';                               // gelbe Rutsche
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(px + 118, 368);
+    ctx.bezierCurveTo(px + 130, 380, px + 112, 388, px + 98, 394);
+    ctx.stroke();
+    ctx.strokeStyle = '#c9cdd1'; ctx.lineWidth = 2;            // Rutschen-Leiter
+    ctx.beginPath(); ctx.moveTo(px + 118, 368); ctx.lineTo(px + 118, 408); ctx.stroke();
+    for (const [dx, farbe] of [[-30, '#e2483c'], [-16, COLORS.blue], [130, COLORS.lime], [146, '#e2483c']]) {
+      ctx.fillStyle = farbe;                                   // Handtücher auf der Wiese
+      ctx.fillRect(px + dx, 408, 12, 4);
+    }
+  }
+}
+
+/** Fischbach (Level 5): Backstein-Bahnhof, weißer Glockenturm mit
+    Uhrenkranz und Kreuz — und der Wappen-Fisch springt aus dem See. */
+function drawFischbach(camX) {
+  const SPAN = 1800;
+  for (let k = -1; k < 2; k++) {
+    const x0 = ((-camX * 0.35) % SPAN) + k * SPAN + 200;
+
+    // Bahnhof Fischbach: gelber Backstein, Bogentüren, Uhr
+    ctx.fillStyle = '#dcae56';
+    ctx.fillRect(x0, 314, 84, 42);
+    ctx.fillStyle = '#7a5a48';                                 // Walmdach mit Giebel
+    ctx.beginPath();
+    ctx.moveTo(x0 - 6, 316); ctx.lineTo(x0 + 20, 298); ctx.lineTo(x0 + 42, 306);
+    ctx.lineTo(x0 + 64, 298); ctx.lineTo(x0 + 90, 316); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#b3b8bd';                                 // Bogentüren
+    for (const dx of [26, 48]) {
+      ctx.beginPath();
+      ctx.moveTo(x0 + dx, 356); ctx.lineTo(x0 + dx, 336);
+      ctx.quadraticCurveTo(x0 + dx + 7, 328, x0 + dx + 14, 336);
+      ctx.lineTo(x0 + dx + 14, 356); ctx.closePath(); ctx.fill();
+    }
+    ctx.fillStyle = '#f4e6c8';                                 // helle Fenster oben
+    for (let i = 0; i < 4; i++) ctx.fillRect(x0 + 10 + i * 19, 320, 8, 10);
+    ctx.strokeStyle = '#4a4a4a'; ctx.lineWidth = 1.3;          // Uhr
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(x0 + 8, 340, 5.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x0 + 8, 340); ctx.lineTo(x0 + 8, 336);
+    ctx.moveTo(x0 + 8, 340); ctx.lineTo(x0 + 11, 341);
+    ctx.stroke();
+
+    // Weißer Campanile mit Uhrenkranz und Kreuz + flaches Kirchenschiff
+    const cx = x0 + 420;
+    ctx.fillStyle = '#f2efe8';
+    ctx.fillRect(cx, 254, 22, 100);
+    ctx.fillStyle = '#c9c4b6';                                 // Lamellen oben
+    for (let i = 0; i < 5; i++) ctx.fillRect(cx + 3 + i * 4, 258, 2, 16);
+    ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 2.5;          // goldener Uhrenkranz
+    ctx.beginPath(); ctx.arc(cx + 11, 288, 7, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = '#8a949c'; ctx.lineWidth = 2;            // Kreuz
+    ctx.beginPath();
+    ctx.moveTo(cx + 11, 254); ctx.lineTo(cx + 11, 242);
+    ctx.moveTo(cx + 6, 246); ctx.lineTo(cx + 16, 246);
+    ctx.stroke();
+    ctx.fillStyle = '#ece8de';                                 // flaches Schiff
+    ctx.fillRect(cx + 30, 330, 90, 24);
+    ctx.fillStyle = '#b45a45';
+    ctx.fillRect(cx + 26, 324, 98, 8);
+
+    // Apfelbaum (Wappen)
+    ctx.fillStyle = '#5f9e46';
+    ctx.beginPath(); ctx.arc(x0 + 250, 334, 17, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#8a5a35'; ctx.fillRect(x0 + 248, 344, 5, 12);
+    ctx.fillStyle = '#c22f26';
+    for (const [ax, ay] of [[-7, -5], [6, 2], [-1, -12]]) {
+      ctx.beginPath(); ctx.arc(x0 + 250 + ax, 334 + ay, 2.4, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+}
+
+/** Der Wappen-Fisch springt in einem Bogen aus dem See. */
+function drawFisch(camX, t) {
+  const SPAN = 1400;
+  const fx = ((520 - camX * 0.6) % SPAN + SPAN) % SPAN - 200;
+  if (fx < -60 || fx > CFG.W + 60) return;
+  const ph = (t * 0.35) % 1;                                   // Sprungphase
+  if (ph > 0.32) return;                                       // meist unter Wasser
+  const p = ph / 0.32;
+  const jx = fx + p * 56;
+  const jy = 396 - Math.sin(p * Math.PI) * 42;
+  ctx.save();
+  ctx.translate(jx, jy);
+  ctx.rotate(-0.9 + p * 1.8);                                  // Bogenflug
+  ctx.fillStyle = '#cfd6da';                                   // silbriger Körper
+  ctx.beginPath(); ctx.ellipse(0, 0, 14, 5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#e2483c';                                   // rote Flossen (Wappen)
+  ctx.beginPath();
+  ctx.moveTo(-13, 0); ctx.lineTo(-20, -5); ctx.lineTo(-20, 5); ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(2, -4); ctx.lineTo(5, -9); ctx.lineTo(8, -4); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = COLORS.ink;
+  ctx.beginPath(); ctx.arc(9, -1.5, 1.2, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+  if (ph < 0.06 || ph > 0.28) {                                // Platscher
+    ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(ph < 0.06 ? fx : fx + 56, 398, 10, 3, 0, 0, Math.PI * 2); ctx.stroke();
+  }
+}
+
+/** Eriskirch (Level 7): St. Maria mit spitzem Turm, die gedeckte
+    Holzbrücke über die Schussen und die Alte Schule. */
+function drawEriskirch(camX) {
+  const SPAN = 1900;
+  for (let k = -1; k < 2; k++) {
+    const x0 = ((-camX * 0.42) % SPAN) + k * SPAN + 160;
+
+    // St. Maria: cremefarbener Turm, Uhren, hoher blaugrüner Spitzhelm
+    ctx.fillStyle = '#f0e9d8';
+    ctx.fillRect(x0, 302, 26, 70);
+    ctx.fillStyle = '#4c7a78';                                 // Spitzhelm
+    ctx.beginPath();
+    ctx.moveTo(x0 - 4, 304); ctx.lineTo(x0 + 13, 240); ctx.lineTo(x0 + 30, 304);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#8a949c'; ctx.lineWidth = 1.6;          // Wetterhahn-Stange
+    ctx.beginPath(); ctx.moveTo(x0 + 13, 240); ctx.lineTo(x0 + 13, 230); ctx.stroke();
+    ctx.strokeStyle = '#4a4a4a'; ctx.lineWidth = 1.3;          // Uhren
+    ctx.fillStyle = '#fff';
+    for (const dx of [6, 20]) {
+      ctx.beginPath(); ctx.arc(x0 + dx, 312, 4.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    }
+    ctx.fillStyle = '#7a6a55';                                 // Schallfenster
+    ctx.fillRect(x0 + 5, 324, 7, 11);
+    ctx.fillRect(x0 + 15, 324, 7, 11);
+    ctx.fillStyle = '#ece4d2';                                 // Kirchenschiff
+    ctx.fillRect(x0 + 30, 336, 52, 36);
+    ctx.fillStyle = '#b45a45';
+    ctx.beginPath();
+    ctx.moveTo(x0 + 26, 338); ctx.lineTo(x0 + 56, 320); ctx.lineTo(x0 + 86, 338);
+    ctx.closePath(); ctx.fill();
+
+    // Gedeckte Holzbrücke über die Schussen
+    const bx = x0 + 520;
+    ctx.fillStyle = '#d9a95f';                                 // Brückenkorpus
+    ctx.fillRect(bx, 376, 112, 34);
+    ctx.fillStyle = '#8a5a35';                                 // Balken senkrecht
+    for (let i = 0; i < 6; i++) ctx.fillRect(bx + 4 + i * 20, 376, 4, 34);
+    ctx.fillStyle = '#b47a3f';                                 // Satteldach
+    ctx.beginPath();
+    ctx.moveTo(bx - 8, 378); ctx.lineTo(bx + 56, 358); ctx.lineTo(bx + 120, 378);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#3d2f22';                                 // dunkles Portal
+    ctx.beginPath();
+    ctx.moveTo(bx + 44, 410); ctx.lineTo(bx + 44, 386);
+    ctx.lineTo(bx + 56, 378); ctx.lineTo(bx + 68, 386);
+    ctx.lineTo(bx + 68, 410); ctx.closePath(); ctx.fill();
+
+    // Alte Schule: rosa Fassade, Läden, Mansarddach
+    const ax = x0 + 1000;
+    ctx.fillStyle = '#efd9d2';
+    ctx.fillRect(ax, 330, 74, 42);
+    ctx.fillStyle = '#6e4a38';                                 // Mansarddach
+    ctx.beginPath();
+    ctx.moveTo(ax - 6, 332); ctx.lineTo(ax + 8, 312); ctx.lineTo(ax + 66, 312);
+    ctx.lineTo(ax + 80, 332); ctx.closePath(); ctx.fill();
+    for (let i = 0; i < 3; i++) {                              // Fenster mit roten Läden
+      const fx2 = ax + 9 + i * 22;
+      ctx.fillStyle = '#a8402f';
+      ctx.fillRect(fx2 - 2, 338, 14, 12);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(fx2 + 1, 338, 8, 12);
+    }
+    ctx.fillStyle = '#5c4632';                                 // Portal
+    ctx.fillRect(ax + 31, 356, 12, 16);
+  }
+}
+
+/** Oberteuringen (Level 8): St. Martinus mit schlankem Spitzturm
+    und das weiße Amtshaus mit grünen Läden. */
+function drawOberteuringen(camX) {
+  const SPAN = 1700;
+  for (let k = -1; k < 2; k++) {
+    const x0 = ((-camX * 0.4) % SPAN) + k * SPAN + 190;
+
+    // St. Martinus: weißer Turm, sehr schlanker dunkler Spitzhelm
+    ctx.fillStyle = '#f4f1e8';
+    ctx.fillRect(x0, 322, 24, 84);
+    ctx.fillStyle = '#4a4640';
+    ctx.beginPath();
+    ctx.moveTo(x0 - 3, 324); ctx.lineTo(x0 + 12, 246); ctx.lineTo(x0 + 27, 324);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 2;            // goldenes Wimpelchen (St. Martin)
+    ctx.beginPath(); ctx.moveTo(x0 + 12, 246); ctx.lineTo(x0 + 12, 236); ctx.stroke();
+    ctx.fillStyle = '#c9a227';
+    ctx.beginPath();
+    ctx.moveTo(x0 + 12, 236); ctx.lineTo(x0 + 21, 239); ctx.lineTo(x0 + 12, 242);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#4a4a4a'; ctx.lineWidth = 1.3;          // Uhr
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(x0 + 12, 334, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#7a6a55';
+    ctx.fillRect(x0 + 8, 348, 8, 12);
+    ctx.fillStyle = '#ece4d2';                                 // Schiff
+    ctx.fillRect(x0 + 28, 358, 46, 48);
+    ctx.fillStyle = '#b45a45';
+    ctx.beginPath();
+    ctx.moveTo(x0 + 24, 360); ctx.lineTo(x0 + 51, 342); ctx.lineTo(x0 + 78, 360);
+    ctx.closePath(); ctx.fill();
+
+    // Amtshaus: weiß, mächtiges Walmdach, grüne Läden
+    const ax = x0 + 520;
+    ctx.fillStyle = '#f6f3ea';
+    ctx.fillRect(ax, 358, 96, 48);
+    ctx.fillStyle = '#6e4a38';
+    ctx.beginPath();
+    ctx.moveTo(ax - 8, 360); ctx.lineTo(ax + 22, 326); ctx.lineTo(ax + 74, 326);
+    ctx.lineTo(ax + 104, 360); ctx.closePath(); ctx.fill();
+    for (let i = 0; i < 4; i++) {                              // Fenster mit grünen Läden
+      const fx2 = ax + 9 + i * 23;
+      ctx.fillStyle = '#5f7a52';
+      ctx.fillRect(fx2 - 2, 366, 15, 13);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(fx2 + 2, 366, 8, 13);
+    }
+    ctx.fillStyle = '#5c4632';
+    ctx.fillRect(ax + 42, 388, 13, 18);
+  }
+}
+
 const SCENES = {
   lake(camX, t) {
     ctx.fillStyle = skyGradient('#bfe9fb', '#e8f7ff');
@@ -572,7 +875,9 @@ const SCENES = {
     ctx.beginPath(); ctx.arc(210, 120, 42, 0, Math.PI * 2); ctx.fill();
     drawClouds(camX, t);
     drawHillsFar(camX, '#a9cfe0', 42, 326);
+    drawFischbach(camX);
     drawWater(camX, t, 352);
+    drawFisch(camX, t);
     drawSail(((520 - camX * 0.5 + t * 9) % (CFG.W + 200)) - 100, 396, 1.05);
     // Strandkörbe / Badehäuschen am Ufer
     for (let i = 0; i < 4; i++) {
@@ -588,21 +893,10 @@ const SCENES = {
     ctx.fillStyle = skyGradient('#bde7f7', '#f6f4e0');
     ctx.fillRect(0, 0, CFG.W, CFG.H);
     drawClouds(camX, t);
+    drawAlps(camX);
     drawHillsFar(camX, '#b9d98a', 52, 336);
-    // Dorf-Silhouette mit Kirchturm
-    for (let i = 0; i < 6; i++) {
-      const x = ((i * 340 - camX * 0.4) % (CFG.W + 260)) - 130;
-      ctx.fillStyle = '#e8ddc8';
-      rr(x, 348, 52, 60, 3); ctx.fill();
-      ctx.fillStyle = '#c0674f';
-      ctx.beginPath(); ctx.moveTo(x - 5, 350); ctx.lineTo(x + 26, 328); ctx.lineTo(x + 57, 350); ctx.closePath(); ctx.fill();
-      if (i % 3 === 0) {                                          // Kirchturm
-        ctx.fillStyle = '#f1e9d6'; rr(x + 70, 300, 26, 108, 3); ctx.fill();
-        ctx.fillStyle = '#8a9aa5';
-        ctx.beginPath(); ctx.moveTo(x + 66, 302); ctx.lineTo(x + 83, 268); ctx.lineTo(x + 100, 302); ctx.closePath(); ctx.fill();
-      }
-    }
-    drawTreeline(camX, 0.6, 424, '#7fae55');
+    drawAilingen(camX, t);
+    drawTreeline(camX, 0.6, 424, '#7fae55', 250);
   },
   ried(camX, t) {
     ctx.fillStyle = skyGradient('#cfeef3', '#eef7dc');
@@ -611,6 +905,7 @@ const SCENES = {
     drawBirds(camX, t);
     drawHillsFar(camX, '#a8cf9a', 34, 330);
     drawWater(camX, t, 368);
+    drawEriskirch(camX);
     drawReeds(camX, 0.5, 372);
     drawReeds(camX, 0.85, 396);
   },
@@ -622,6 +917,7 @@ const SCENES = {
     drawClouds(camX, t);
     drawHillsFar(camX, '#c2dd96', 56, 340);
     drawHillsFar(camX * 1.5, '#a3cc74', 40, 388);
+    drawOberteuringen(camX);
     // Apfelbäume mit roten Punkten
     for (let i = 0; i < 22; i++) {
       const x = ((i * 175 - camX * 0.55) % (CFG.W + 160)) - 80;
