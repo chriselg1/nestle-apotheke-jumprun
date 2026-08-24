@@ -92,10 +92,11 @@ function drawHillsFar(camX, color, amp, base) {
   ctx.fill();
 }
 
-function drawTreeline(camX, factor, base, hue) {
+function drawTreeline(camX, factor, base, hue, spacing) {
   ctx.fillStyle = hue;
-  for (let i = 0; i < 26; i++) {
-    const x = ((i * 149 - camX * factor) % (CFG.W + 160)) - 80;
+  const gap = spacing || 149;
+  for (let i = 0; i < Math.ceil((CFG.W + 160) / gap) + 2; i++) {
+    const x = ((i * gap - camX * factor) % (CFG.W + 160)) - 80;
     const s = 18 + (i * 37 % 22);
     ctx.beginPath();
     ctx.moveTo(x, base);
@@ -431,6 +432,104 @@ function drawHofen(camX) {
   }
 }
 
+/** Linden (Level 4): St. Columban, Flughafen und Skatepark unter
+    der Brücke — nach Fotos aus Friedrichshafen. */
+function drawLinden(camX) {
+  const SPAN = 2000;
+  for (let k = -1; k < 2; k++) {
+    const x0 = ((-camX * 0.38) % SPAN) + k * SPAN + 140;
+
+    // St. Columban: weißer Spitzturm mit Fensterbändern + Pyramide
+    ctx.fillStyle = '#f4f2ec';
+    ctx.beginPath();                                           // Turm
+    ctx.moveTo(x0, 416); ctx.lineTo(x0 + 17, 288); ctx.lineTo(x0 + 34, 416);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#7c8894';                                 // Fensterbänder
+    for (let i = 0; i < 3; i++) ctx.fillRect(x0 + 8, 352 + i * 16, 18, 5);
+    ctx.strokeStyle = '#c9c4b6'; ctx.lineWidth = 1.6;          // Kanten
+    ctx.beginPath();
+    ctx.moveTo(x0, 416); ctx.lineTo(x0 + 17, 288); ctx.lineTo(x0 + 34, 416);
+    ctx.stroke();
+    ctx.beginPath();                                           // Kreuz auf der Spitze
+    ctx.moveTo(x0 + 17, 288); ctx.lineTo(x0 + 17, 278);
+    ctx.moveTo(x0 + 13, 282); ctx.lineTo(x0 + 21, 282);
+    ctx.stroke();
+    ctx.fillStyle = '#eeece4';                                 // Pyramiden-Kirchenschiff
+    ctx.beginPath();
+    ctx.moveTo(x0 + 44, 416); ctx.lineTo(x0 + 78, 372); ctx.lineTo(x0 + 112, 416);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#c9c4b6';
+    ctx.beginPath(); ctx.moveTo(x0 + 78, 372); ctx.lineTo(x0 + 78, 416); ctx.stroke();
+
+    // Flughafen: Tower, Hangar, Windsack
+    const fx = x0 + 560;
+    ctx.fillStyle = '#d8d4ca';                                 // Hangar
+    ctx.beginPath();
+    ctx.moveTo(fx, 416); ctx.lineTo(fx, 392);
+    ctx.quadraticCurveTo(fx + 45, 366, fx + 90, 392);
+    ctx.lineTo(fx + 90, 416); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#8a949c';
+    ctx.fillRect(fx + 28, 398, 34, 18);                        // Hangartor
+    text('FN', fx + 45, 388, 11, '#8a949c', 'center', 900);
+    ctx.fillStyle = '#b9b4aa';                                 // Tower-Schaft
+    ctx.fillRect(fx + 116, 350, 12, 66);
+    ctx.fillStyle = '#3d6a5c';                                 // Kanzel
+    rr(fx + 106, 336, 32, 16, 4); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    rr(fx + 109, 339, 26, 6, 3); ctx.fill();
+    ctx.strokeStyle = '#8a949c'; ctx.lineWidth = 1.6;          // Windsack
+    ctx.beginPath(); ctx.moveTo(fx + 160, 416); ctx.lineTo(fx + 160, 390); ctx.stroke();
+    ctx.fillStyle = '#e2483c';
+    ctx.beginPath();
+    ctx.moveTo(fx + 160, 390); ctx.lineTo(fx + 176, 393); ctx.lineTo(fx + 160, 397);
+    ctx.closePath(); ctx.fill();
+
+    // Skatepark unter der Betonbrücke (mit Graffiti)
+    const sx = x0 + 1100;
+    ctx.fillStyle = '#c4c0b8';                                 // Brückendeck
+    ctx.fillRect(sx - 20, 356, 240, 14);
+    ctx.fillStyle = '#a8a49c';
+    ctx.fillRect(sx - 20, 368, 240, 4);
+    ctx.fillRect(sx + 30, 370, 16, 46);                        // Pfeiler
+    ctx.fillRect(sx + 160, 370, 16, 46);
+    ctx.fillStyle = '#b1ada5';                                 // Rückwand
+    ctx.fillRect(sx + 58, 386, 92, 30);
+    for (const [dx, farbe] of [[6, '#e2483c'], [34, COLORS.blue], [62, COLORS.lime]]) {
+      ctx.fillStyle = farbe;                                   // Graffiti
+      ctx.beginPath();
+      ctx.ellipse(sx + 64 + dx, 400, 12, 7, -0.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = '#9c9890';                                 // Quarter-Pipes
+    ctx.beginPath();
+    ctx.moveTo(sx - 10, 416); ctx.quadraticCurveTo(sx + 22, 414, sx + 24, 392);
+    ctx.lineTo(sx + 28, 416); ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(sx + 214, 416); ctx.quadraticCurveTo(sx + 182, 414, sx + 180, 392);
+    ctx.lineTo(sx + 176, 416); ctx.closePath(); ctx.fill();
+  }
+}
+
+/** Kleines Flugzeug steigt über den Abendhimmel (Flughafen FN). */
+function drawPlane(camX, t) {
+  const x = ((t * 46 - camX * 0.15) % (CFG.W + 700)) - 350;
+  const y = 168 - ((x + 350) / (CFG.W + 700)) * 90;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(-0.1);
+  ctx.fillStyle = '#f6f4ee';
+  rr(-20, -4, 40, 8, 4); ctx.fill();                           // Rumpf
+  ctx.beginPath();                                             // Flügel
+  ctx.moveTo(-2, 0); ctx.lineTo(-14, 10); ctx.lineTo(-6, 0); ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-2, 0); ctx.lineTo(-12, -9); ctx.lineTo(-5, 0); ctx.closePath(); ctx.fill();
+  ctx.beginPath();                                             // Heck
+  ctx.moveTo(-20, -2); ctx.lineTo(-26, -10); ctx.lineTo(-16, -3); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = COLORS.blue;
+  ctx.fillRect(-14, -2.5, 24, 2);                              // Streifen
+  ctx.restore();
+}
+
 const SCENES = {
   lake(camX, t) {
     ctx.fillStyle = skyGradient('#bfe9fb', '#e8f7ff');
@@ -545,9 +644,14 @@ const SCENES = {
     ctx.fillStyle = '#ffca66';
     ctx.beginPath(); ctx.arc(720, 130, 46, 0, Math.PI * 2); ctx.fill();
     drawClouds(camX, t);
+    drawPlane(camX, t);
     drawHillsFar(camX, '#c9a3c4', 44, 330);
-    drawTreeline(camX, 0.4, 400, '#7fa653');
-    drawTreeline(camX, 0.75, 428, '#5d8b3c');
+    drawTreeline(camX, 0.4, 400, '#7fa653', 300);
+    ctx.save();
+    ctx.translate(0, -12);          // Wahrzeichen zwischen die Baumreihen heben
+    drawLinden(camX);
+    ctx.restore();
+    drawTreeline(camX, 0.75, 428, '#5d8b3c', 260);
   }
 };
 
