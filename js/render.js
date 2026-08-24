@@ -268,14 +268,107 @@ function drawMasts(camX) {
   }
 }
 
+/** Uferpromenade Level 1: Hafenbahnhof mit Uhrenturm, Stadtbahnhof,
+    rote Kreisel-Skulptur — nach Fotos aus Friedrichshafen. */
+function drawLakefront(camX) {
+  const SPAN = 1900;
+  for (let k = -1; k < 2; k++) {
+    const x0 = ((-camX * 0.32) % SPAN) + k * SPAN + 180;
+
+    // Hafenbahnhof / Zeppelin-Museum: weißer Bauhaus-Riegel mit Uhrenturm
+    ctx.fillStyle = '#f6f4ee';
+    ctx.fillRect(x0, 322, 180, 36);
+    ctx.fillStyle = '#9fb3bd';                                 // Fensterbänder
+    ctx.fillRect(x0 + 6, 330, 168, 5);
+    ctx.fillRect(x0 + 6, 342, 168, 5);
+    ctx.fillStyle = '#f6f4ee';                                 // Uhrenturm
+    ctx.fillRect(x0 - 26, 272, 28, 86);
+    ctx.fillStyle = '#8a98a2';
+    ctx.fillRect(x0 - 22, 320, 20, 30);                        // Turm-Fensterband
+    ctx.strokeStyle = '#4a5a64'; ctx.lineWidth = 1.6;          // Uhr
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(x0 - 12, 292, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x0 - 12, 292); ctx.lineTo(x0 - 12, 287);
+    ctx.moveTo(x0 - 12, 292); ctx.lineTo(x0 - 8, 293);
+    ctx.stroke();
+    ctx.beginPath();                                           // Fahnenmast
+    ctx.moveTo(x0 - 12, 272); ctx.lineTo(x0 - 12, 260); ctx.stroke();
+
+    // Stadtbahnhof: gelbes Bahnhofsgebäude mit Walmdach
+    const bx = x0 + 260;
+    ctx.fillStyle = '#f2dfa0';
+    ctx.fillRect(bx, 322, 120, 36);
+    ctx.fillStyle = '#f7ecc4';                                 // Mittelrisalit
+    ctx.fillRect(bx + 42, 312, 36, 46);
+    ctx.fillStyle = '#a8766a';                                 // Dächer
+    ctx.beginPath();
+    ctx.moveTo(bx - 5, 324); ctx.lineTo(bx + 18, 310); ctx.lineTo(bx + 44, 318);
+    ctx.lineTo(bx + 60, 302) ; ctx.lineTo(bx + 76, 318); ctx.lineTo(bx + 102, 310);
+    ctx.lineTo(bx + 125, 324); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#fff';                                    // Fensterchen
+    for (let i = 0; i < 7; i++) ctx.fillRect(bx + 8 + i * 16, 330, 7, 10);
+    for (let i = 0; i < 7; i++) ctx.fillRect(bx + 8 + i * 16, 346, 7, 8);
+
+    // Rote Kreisel-Skulptur (die geschwungene "Nadel")
+    const sx = x0 + 470;
+    ctx.strokeStyle = '#d0392e';
+    ctx.lineWidth = 7;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(sx, 356);
+    ctx.bezierCurveTo(sx - 4, 322, sx + 2, 300, sx + 16, 288);
+    ctx.stroke();
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(sx + 16, 288); ctx.lineTo(sx + 24, 296);
+    ctx.stroke();
+
+    // Bäume dazwischen
+    ctx.fillStyle = '#7fae55';
+    for (const dx of [-60, 218, 415, 520]) {
+      ctx.beginPath(); ctx.arc(x0 + dx, 344, 14, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+}
+
+/** Weißes Bodensee-Fahrgastschiff, zieht langsam übers Wasser. */
+function drawShip(camX, t) {
+  const x = ((t * 12 - camX * 0.5) % (CFG.W + 500)) - 250;
+  const y = 388 + Math.sin(t * 1.4) * 1.5;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = '#fff';                                      // Rumpf
+  ctx.beginPath();
+  ctx.moveTo(-58, 0); ctx.lineTo(58, 0); ctx.lineTo(48, 14); ctx.lineTo(-52, 14);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = COLORS.blueDeep;                             // Wasserlinie
+  ctx.fillRect(-52, 11, 100, 3);
+  ctx.fillStyle = '#f4f8fa';                                   // Oberdeck
+  rr(-42, -12, 76, 12, 3); ctx.fill();
+  rr(-28, -22, 42, 10, 3); ctx.fill();
+  ctx.fillStyle = '#8fb4c4';                                   // Fensterreihen
+  for (let i = 0; i < 8; i++) ctx.fillRect(-38 + i * 9, -9, 5, 5);
+  for (let i = 0; i < 4; i++) ctx.fillRect(-24 + i * 9, -19, 5, 4);
+  ctx.strokeStyle = '#5d7a8a'; ctx.lineWidth = 2;              // Mast
+  ctx.beginPath(); ctx.moveTo(20, -22); ctx.lineTo(20, -34); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,.6)';                    // Kielwasser
+  ctx.beginPath(); ctx.moveTo(-52, 15); ctx.quadraticCurveTo(-70, 17, -84, 14); ctx.stroke();
+  ctx.restore();
+}
+
 const SCENES = {
   lake(camX, t) {
     ctx.fillStyle = skyGradient('#bfe9fb', '#e8f7ff');
     ctx.fillRect(0, 0, CFG.W, CFG.H);
     drawClouds(camX, t);
     drawZeppelin(camX, t);
-    drawHillsFar(camX, '#a5d3a7', 40, 330);
+    drawBirds(camX, t);
+    drawAlps(camX);
+    drawHillsFar(camX, '#a5d3a7', 40, 336);
+    drawLakefront(camX);
     drawWater(camX, t, 356);
+    drawShip(camX, t);
     drawSail(((640 - camX * 0.45 + t * 8) % (CFG.W + 200)) - 100, 392, 1);
     drawSail(((190 - camX * 0.45 + t * 5) % (CFG.W + 200)) - 100, 410, 0.7);
   },
