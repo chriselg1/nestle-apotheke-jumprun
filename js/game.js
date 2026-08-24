@@ -56,6 +56,7 @@ function hurtPlayer() {
   const p = game.player;
   if (p.invuln > 0) return;
   game.lives -= 1;
+  AudioFX.sfxZonk();
   if (game.lives <= 0) {
     game.state = STATE.GAMEOVER;
     return;
@@ -68,6 +69,7 @@ function hurtPlayer() {
 
 function respawnFromFall() {
   game.lives -= 1;
+  AudioFX.sfxZonk();
   if (game.lives <= 0) {
     game.state = STATE.GAMEOVER;
     return;

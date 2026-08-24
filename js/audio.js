@@ -214,12 +214,21 @@ const AudioFX = (() => {
     blip('triangle', f(91), t0 + 0.24, 0.25, 0.25);
   }
 
+  /** Leben verloren: klassischer "Zonk" — wah, wah, wah, waaah ↓ */
+  function sfxZonk() {
+    if (!sfxReady()) return;
+    const t0 = ctx.currentTime;
+    [64, 62, 60].forEach((m, i) => blip('square', f(m), t0 + i * 0.13, 0.12, 0.42));
+    blip('square', f(58), t0 + 0.39, 0.5, 0.45, f(52));   // letzter Ton sackt ab
+    blip('triangle', f(46), t0 + 0.39, 0.5, 0.3, f(40));
+  }
+
   /* ---------- API ---------- */
 
   return {
     get muted() { return muted; },
     get running() { return running; },
-    sfxPill, sfxStomp, sfxOrder, sfxDelivered,
+    sfxPill, sfxStomp, sfxOrder, sfxDelivered, sfxZonk,
 
     /** Beim ersten User-Gesture aufrufen (Autoplay-Policy der Browser). */
     unlock() {
