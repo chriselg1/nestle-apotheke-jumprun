@@ -282,6 +282,26 @@ function togglePause() {
 
 pauseBtn.addEventListener('click', togglePause);
 
+/* ---------- Musik ---------- */
+
+const sndBtn = document.getElementById('snd-btn');
+sndBtn.textContent = AudioFX.muted ? '🔇' : '🔊';
+sndBtn.addEventListener('click', () => {
+  AudioFX.unlock();
+  sndBtn.textContent = AudioFX.toggleMute() ? '🔇' : '🔊';
+});
+
+// Autoplay-Policy: Audio erst nach der ersten echten User-Geste erlauben
+['pointerdown', 'keydown', 'touchstart'].forEach((type) =>
+  window.addEventListener(type, () => AudioFX.unlock(), { once: true, passive: true }));
+
+const MUSIC_STATES = new Set([STATE.TITLE, STATE.INTRO, STATE.PLAY, STATE.CLEARED, STATE.OUTRO, STATE.FINALE, STATE.SCORES]);
+
+function updateMusic() {
+  if (MUSIC_STATES.has(game.state)) AudioFX.start();
+  else AudioFX.stop();                         // Pause & Game Over: Stille
+}
+
 /* ---------- Loop ---------- */
 
 let lastTime = performance.now();
@@ -308,6 +328,9 @@ function frame(now) {
   shopBtn.classList.toggle('show', game.state === STATE.GAMEOVER || game.state === STATE.FINALE);
   pauseBtn.classList.toggle('show', game.state === STATE.PLAY || game.state === STATE.PAUSED);
   pauseBtn.textContent = game.state === STATE.PAUSED ? '▶' : '⏸';
+  sndBtn.classList.toggle('show',
+    game.state === STATE.TITLE || game.state === STATE.PLAY || game.state === STATE.PAUSED);
+  updateMusic();
 
   if (game.state === STATE.PLAY) {
     Input.consumeConfirm();                 // Leertaste im Spiel nicht als "Weiter" werten
