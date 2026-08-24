@@ -162,15 +162,35 @@ const SCENES = {
     drawClouds(camX, t);
     drawHillsFar(camX, '#8fbfd8', 46, 320);
     drawWater(camX, t, 348);
-    // Kräne an der Kaimauer
-    ctx.strokeStyle = COLORS.blueDeep;
-    ctx.lineWidth = 5;
+    // Hafenkräne an der Kaimauer (mit Ausleger, Seil und Container)
     for (let i = 0; i < 3; i++) {
       const x = ((i * 420 - camX * 0.4) % (CFG.W + 300)) - 150;
+      ctx.strokeStyle = COLORS.blueDeep;
+      ctx.lineWidth = 5;
+      ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.moveTo(x, 348); ctx.lineTo(x, 210); ctx.lineTo(x + 90, 232);
-      ctx.moveTo(x + 62, 226); ctx.lineTo(x + 62, 262);
+      ctx.moveTo(x, 348); ctx.lineTo(x, 216);                  // Turm
+      ctx.moveTo(x - 34, 228); ctx.lineTo(x + 96, 228);        // Ausleger + Gegenausleger
+      ctx.moveTo(x, 216); ctx.lineTo(x + 44, 228);             // Abspannung vorn
+      ctx.moveTo(x, 216); ctx.lineTo(x - 26, 228);             // Abspannung hinten
       ctx.stroke();
+      ctx.fillStyle = COLORS.blueDeep;                         // Führerhaus + Gegengewicht
+      ctx.fillRect(x - 8, 228, 16, 14);
+      ctx.fillRect(x - 38, 228, 14, 10);
+      ctx.strokeStyle = '#5d7a8a';                             // Tragseil
+      ctx.lineWidth = 2;
+      const sway = Math.sin(t * 0.8 + i * 2) * 3;
+      ctx.beginPath();
+      ctx.moveTo(x + 78, 228); ctx.lineTo(x + 78 + sway, 272);
+      ctx.stroke();
+      ctx.fillStyle = i % 2 ? '#c0674f' : COLORS.lime;         // hängender Container
+      ctx.fillRect(x + 64 + sway, 272, 28, 14);
+      ctx.strokeStyle = 'rgba(0,0,0,.15)';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x + 64 + sway, 272, 28, 14);
+      // Fundament auf der Kaimauer
+      ctx.fillStyle = COLORS.blueDeep;
+      ctx.fillRect(x - 12, 342, 24, 8);
     }
     drawSail(((430 - camX * 0.5 + t * 10) % (CFG.W + 200)) - 100, 396, 1.15);
   },
