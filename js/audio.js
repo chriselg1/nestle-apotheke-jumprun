@@ -111,11 +111,6 @@ const AudioFX = (() => {
     blip('square', 1750, t0 + 0.18, 0.18, 0.4, 950);
   }
 
-  function ferryHorn(t0) { // tiefes Fährhorn, zweistimmig
-    blip('sawtooth', f(38), t0, 0.9, 0.5);
-    blip('sawtooth', f(45), t0, 0.9, 0.3);
-  }
-
   function trainWhistle(t0) { // zweitönige Dampfpfeife: "tü-tüüü"
     blip('square', f(81), t0, 0.16, 0.35, f(80));
     blip('square', f(76), t0, 0.16, 0.25, f(75));
@@ -167,8 +162,7 @@ const AudioFX = (() => {
       const wave = [N.C4, N.E4, N.G4, N.E4][(local / 2) % 4];
       blip('triangle', f(wave + 12), t0, STEP * 1.6, 0.16);
     }
-    // Effekte: Fährhorn am Anfang, Zugpfeife vor jedem Refrain, Möwe im Zwischenspiel
-    if (step % FORM_LEN === 0) ferryHorn(t0);
+    // Effekte: Zugpfeife vor jedem Refrain, Möwe im Zwischenspiel
     if (part.kind === 'refrain' && local === 0) trainWhistle(t0 - STEP * 2);
     if (part.kind === 'wave' && local === 16) seagull(t0);
   }
@@ -182,11 +176,50 @@ const AudioFX = (() => {
     }
   }
 
+  /* ---------- Sound-Effekte (laufen über denselben Master/Mute) ---------- */
+
+  function sfxReady() {
+    return ensureCtx() && ctx.state === 'running';
+  }
+
+  /** Pille eingesammelt: klassischer Münz-Pling. */
+  function sfxPill() {
+    if (!sfxReady()) return;
+    const t0 = ctx.currentTime;
+    blip('square', f(83), t0, 0.06, 0.4);          // B5
+    blip('square', f(88), t0 + 0.06, 0.22, 0.4);   // E6, klingt aus
+  }
+
+  /** Keim erledigt: satter absteigender Stomp + Zisch. */
+  function sfxStomp() {
+    if (!sfxReady()) return;
+    const t0 = ctx.currentTime;
+    blip('square', 380, t0, 0.16, 0.5, 70);
+    hat(t0, 0.35);
+  }
+
+  /** Bestellung abgeholt: schnelles Aufwärts-Arpeggio. */
+  function sfxOrder() {
+    if (!sfxReady()) return;
+    const t0 = ctx.currentTime;
+    [72, 76, 79, 84].forEach((m, i) => blip('square', f(m), t0 + i * 0.055, 0.09, 0.4));
+  }
+
+  /** Paket zugestellt: kleine Fanfare mit Schluss-Glitzer. */
+  function sfxDelivered() {
+    if (!sfxReady()) return;
+    const t0 = ctx.currentTime;
+    [67, 72, 76].forEach((m, i) => blip('square', f(m), t0 + i * 0.07, 0.1, 0.42));
+    blip('square', f(79), t0 + 0.21, 0.3, 0.45);
+    blip('triangle', f(91), t0 + 0.24, 0.25, 0.25);
+  }
+
   /* ---------- API ---------- */
 
   return {
     get muted() { return muted; },
     get running() { return running; },
+    sfxPill, sfxStomp, sfxOrder, sfxDelivered,
 
     /** Beim ersten User-Gesture aufrufen (Autoplay-Policy der Browser). */
     unlock() {

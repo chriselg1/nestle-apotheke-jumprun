@@ -111,6 +111,7 @@ function updatePlay(dt, t) {
       g.alive = false;
       p.vy = -CFG.STOMP_BOUNCE;
       game.score += POINTS.GERM;
+      AudioFX.sfxStomp();
       showToast(`Keim erledigt! +${POINTS.GERM}`);
     } else {
       hurtPlayer();
@@ -123,13 +124,16 @@ function updatePlay(dt, t) {
     pk.taken = true;
     if (pk.type === 'pill') {
       game.score += POINTS.PILL;
+      AudioFX.sfxPill();
     } else if (pk.type === 'delivery') {
       lvl.ordersGot += 1;
       game.score += POINTS.ORDER;
+      AudioFX.sfxDelivered();
       showToast(`Paket zugestellt: ${pk.label}! +${POINTS.ORDER}`);
     } else {
       lvl.ordersGot += 1;
       game.score += POINTS.ORDER;
+      AudioFX.sfxOrder();
       showToast(`${pk.label} eingesammelt! +${POINTS.ORDER}`);
     }
   }
